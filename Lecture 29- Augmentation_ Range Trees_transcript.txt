@@ -1,0 +1,179 @@
+Okay. Okay. We're going to get started. Okay. So now we have another data structures topic, which is data structure augmentation. Okay.
+
+The idea is we're going to take some existing data structure and augment it to do extra cool things. So take some other data structures there that we've covered. Typically that'll be a balanced search tree like an AVL or a two, three tree, and then we'll modify it to store some extra information, which will enable additional kinds of searches typically, and sometimes to do updates better. And you've seen an example of this where you took AVL trees and augmented AVL trees so that every node knew the number of nodes in that rooted sub tree. Today we're going to see that example, but also a bunch of cool examples, different types of augmentations you could do. And we'll start out with a very simple one, which I will call easy tree augmentation, which will include a sub tree size as a special case.
+
+So with easy tree augmentation, the idea is you have a tree like an AVL tree or a two, three tree or something like that. And you'd like to store for every node X some function of the sub tree rooted at X. Okay, that's important. Routed at X such as the number of nodes in there or the sum of the weights of the nodes or some of the squares of the weights or the men or the max or maybe the median, maybe I'm not sure. Some function f of X, which is a function of that, maybe not f of X, but we want to store some function of that sub tree. Okay, say the goal is to store f of the sub tree rooted at X at each node X in a field, which I'll call X dot f.
+
+Okay, so normally nodes have a left child and a right child parent, but we're going to store an extra field X dot f for some function that you can define. That's not always possible, but here's the case where it is possible. That's going to be the easy case. Suppose X dot f can be computed locally using lower information, lower nodes, and we'll say, let's suppose it can be computed in constant time from information in the node X from X's children and from the f value that's stored in the children. I'll call that children dot f. Okay.
+
+But really, I mean, left child f, right child f, right, or if you have a two three tree, you have three children potentially, and the dot f of each of them. Okay, so suppose you can compute X dot f locally just using one level down in constant time, then as you might expect, you can, you can update whenever a node ends up changing. So more formally, if some set of nodes change, we'll call this at s. So, so I'm stating a very general theorem here. If there is some set of nodes, which we changed something about them, we change either their f field, we change some of the data that's in the node, or we do a rotation, loosen those around. Then we count the total number of ancestors of those nodes.
+
+We're assuming we compute X dot f just given the children data. So if this data is changing, we'll have to update its parents value of f because it depends on its child value. We have to update all those parents all the way up to the root. So how many nodes there are there, that's the total cost. Now, luckily in an AVL tree or two, three tree, most balanced search structures, the updates you do are very localized. When we do splits in a two, three tree, we only do it up a single path to the root.
+
+So the number of ancestors here is just going to be log n. Okay, same thing with an AVL tree. If you look at the rotations you do, there are, they are up a single leaf to root path. And so the number of ancestors that needs to be updated, it's always order log n. Things change and there's order log in ancestors of them. So this is a little bit more general than we need, but it's just to point out if we did log n rotations spread out somewhere in that tree, that would actually be bad because the total number of ancestors could be log squared.
+
+But because in the structures we've seen, we just work on a single path to root, we get log n. Okay, so in a little more detail here, whenever we do a rotation in an AVL tree, let's say ABCXY, hopefully you remember rotations. It's been a while since we've done rotations. So we haven't changed any of the nodes in ABC, but we have changed the nodes Y and X. So we're going to have to trigger an update of Y. First we want to update Y.F.
+
+And then we're going to trigger an update X.F. And as long as Y after the rotation can be computed from its children, then we compute Y.F. Then we can compute X from its children. All right. So a constant number of extra things we need to do when we do rotation. And because rotations lie on a single path, total costs that once we stop doing the rotations in AVL inserts, say, then we have to keep updating up to the root, but there's only log n at most log n nodes to do that.
+
+So this is a general theorem about augmentation. Any function that's well behaved in this sense, we can maintain in AVL trees and two, three trees. And I'll remind you and stay a little more generally. Well, we did earlier in the semester, which are called order statistic trees in the textbook. Okay. So here we're going to let me first tell you what we're trying to achieve.
+
+This is the abstract data type or the interface of the data structure. We want to do insert, delete and say successor searches. It's the usual thing we want out of binary search tree predecessor to sure. We want to do a rank of a given key, which is tell me what is the index of that key in the overall sorted order of items of the keys. We've talked about rank a few times already in this class depends on whether you start at zero or one, but let's say we start at one. So if you say rank of the key that happens to be the minimum, you want to get one.
+
+If you say rank of the key that happens to the median, you want to get n over two plus one and so on. And the converse option operation is select. Let's say of I, which is give me the key of rank I. We've talked about select as an offline operation. Given an array, find me the median or find me the n over seventh rank item. And we can do that in linear time given no data structure here.
+
+We want a data structure so that we can find the median or the seventh item or the n over seventh key, whatever in log n time. We want to do all these operations in log n per operation. Okay. So in particular rank of selective I should equal I. We're trying to find the item of that rank. So so far so good.
+
+And just to plug these two parts together, we have this data structure augmentation tool. We have this goal we want to achieve. We're going to achieve this goal by applying this technique where F is just the subtree size. It's the number of nodes in that substrate because that will let us compute rank. So we're going to say we're going to use easy tree augmentation with F of subtree equal to the number of nodes in the subtree. So in order for this to apply, we need to check that given a node X, we can compute X dot F using just its children.
+
+That's the easy part. We just add everything up. So X dot F would be equal to one. That's for X plus the sum of C dot F for every child C. I'm trying to be generic here. If it's a binary search tree, you would do X dot left dot F plus X dot right dot F, but this will also work for two, three trees.
+
+Okay. Pick your favorite data structure. As long as there's a constant number of children, then this will take a constant number of time, a constant time. So we satisfy this condition so we can do easy tree augmentation. And now we know we have subtree sizes. So given any known, we know the number of descendants below that node.
+
+Okay. So that's cool. It lets us compute rank in select. I'll just give you those algorithms quickly. We can check that there in log n time. So the idea is pretty simple.
+
+You have some key. Let's think about binary trees now because it's a little bit easier. We have some item X. It has a left subtree, right subtree. And now let's look up from X. Let's just keep calling X dot parent.
+
+So sometimes the parent is to the right of us. Sometimes the parent is to the left of us. So our funny picture here has a very special property, which is that the X coordinate in this diagram is the key value. Or it is the sorted order of the keys, right? Everything in the left subtree of X has a value less than X. If we say all the keys are different, everything to the right of X has a value greater than X.
+
+If X was the left child of its parent, that means this thing is also greater than X, right? And if we follow a parent and this was the right child to that parent, that means this thing is less than X. So that's why I drew it all the way over to the left. Here we have a right parent. So that means this is something greater than X. And then we have another, oops, I went too far.
+
+I went too far. Another left parent, so that's less than X. So let's say that's the root, okay? In general, there's going to be some left edges and some right edges as we go up. These arrows will either go left or right in a binary tree. So the rank of X is just one plus the number of nodes that are less than X.
+
+The number of keys that are less than X. So everything to the left side of this drawing, all of the nodes in the left subtree are less than X. All of the nodes in the left subtree of these less than X nodes will also be less than X. If you think about these other sub trees on the right, they're going to be bigger than X. So we don't really care about them. So we just want to count up all these nodes.
+
+And so the algorithm to do that is pretty simple. I'm going to switch from this F notation to size. It's a little bit more natural. In general, you might have many functions. So this is the usual notation for subtree size. So we start by counting up how many items are in the left subtree of X, the triangle one to the left.
+
+Okay. And if we start at a rank of one, if the men has rank one, then I should also do plus one for X itself. If you wanted to start at zero, you just omit that plus one. Okay. And then all I do is walk up from X to the root of the tree. And whenever we go left, say X to X prime, that means we have an X prime.
+
+It's right child is X. And so when we went from X to its parent, we went to the left. Then we say rank plus equals X. Prime dot left dot size plus one for X prime itself. And maybe X prime dot left dot size is zero. Maybe there's no nodes over there.
+
+But at the very least, we have to count those nodes that are to the left of us. So let's compute that rank. How long does that take? Well, we're just walking up one path from a leaf to a root or not necessarily a leaf, but from some node X to the root. And as long as we're using a balanced structure like AVL trees, I guess I want binary tree here. So let's say AVL trees, then this will take log and time.
+
+So I'm spending constant work per step. There are log and steps. So that's rank. It's a lot of work. But I'm using the values of the root. It's like one or two values of the root.
+
+So let's say we're just going to rank. And if we rank easy to do once you have sub true size. So let's do select then four fun. Where did we go? Here we are. Okay.
+
+So we're going to do the reverse. We're going to start at the root and we're going to walk down now. Sounds easy enough. But now walking down is kind of like doing a search. But we don't have a key. We're searching for. know that rank of X and compare that to I.
+
+That will tell us whether we should go left or go right or whether we happen to find the item. Now, one possibility is we call rank of X to find the rank of X. But that's dangerous because I'm going to have a for loop there, and it's going to take log n iterations. So at every iteration of computing rank of X and rank cost log n, then overall cost might be log squared n. So I want to know what rank of X is, but I can't afford to say rank open parentheses X, because that recursive call will be too expensive. So what is the rank of X in this case?
+
+Number of, well, here, number of left or the size of left subtree plus 1 plus 1 if we're counting starting at 1. So at least for the root, this is the rank that only takes us constant time in the special case. We'll have to check that it still holds after I do the loop, but it will. So cool. Now there are three cases. If I equals rank, if the rank we're searching for is the rank that we happen to have, then we're done.
+
+We just return X. That's the easy case. Most likely, I will be either less than or equal to the rank of X. So if I is less than the rank, then this is fairly easy. We just say X equals X dot left. Let's look at the diagram.
+
+So we have X. It's at rank rank. Then we have the left subtree and the right subtree. And so if the rank we're searching for is less than rank, that means we know it's in the left subtree, right? So we should go left. And if we just said X equals X dot left, you might ask, well, what rank are we searching for in the left subtree?
+
+Well, exactly the same rank. OK, fine. That's OK. In the other situation, if we're searching in the right subtree, we're searching for rank greater than rank. Then I want to go right, but the new rank that I'm searching for is local to the right subtree. I'm searching for I minus X and left subtree.
+
+That stuff is rank, right? So I'm going to let I be I minus rank. Then I do a loop. You could write this recursively if you'd like, but here's an iterative version. So it's actually very familiar to the select algorithm that we had, like when we did deterministic linear time median finding or randomized median finding. They had a very similar kind of recursion, but in the case that they were spending linear time to do the partition, and that was expensive.
+
+Here, we're just spending constant time at each node, so the overall cost is log n. So that's nice, OK? I want to note here, subtree size is obvious once you know. That's what you should do. Another thing, another natural thing to try to do would be to augment for each node. What is the rank of the rank of that node?
+
+Because then rank is really easy to find, and then select would basically be a regular search. I just look at the rank of the root. I see the rank I'm looking for is too big or too small. Then I go left or right accordingly. What would be bad about augmenting with rank of a node? What would be bad about augmenting with rank of a node?
+
+Updates, right? Why? What's a bad example for an update? Say we insert a new minimum element, for example, if we insert minus infinity, a new key that is smaller than all the other keys, then the rank of every node changes. So that's bad. It means that easy tree augmentation in particular isn't going to apply.
+
+And furthermore, it would take linear time to do this. And if you keep inserting, if you insert keys in decreasing order from there, every time you do an insert, all the ranks increase by one. Maintaining that's going to cost linear time per update. So you have to be really careful that the function you want to store can actually be maintained. Be very careful about that on the final set coming up, that when you're augmenting something, you can actually maintain it. For example, it's very hard to maintain the depths of the nodes because when you do a rotation of the tree, a whole lot of depths change.
+
+Depth is counting from the root. How deep am I? But it's very easy to maintain heights, for example. Height is counting from the bottom, OK? Because I don't change the height of A, B, and C, I affect it for X and Y. But that's just two nodes.
+
+That I can afford. So that's what you want to be careful of in easy tree augmentation. So most of the time, easy tree augmentation does the job. But I want to show you a cooler example of augmentation. So this is the idea of level linking. And here, we're going to do it in the context of two, three trees.
+
+So the idea of level linking is very simple. Let's look at a two, three tree. Level linking is the idea of, in addition to our child and parent pointers, we're going to add links on all the levels, horizontal links. So that's nice. Two questions. Can we do this?
+
+And what's it good for? So let's start with, can we do this? Remember, in two, three trees, all we have to think about are splits and merges. So in split, we have, for a brief period, let's say three keys for children. If we think about where the level pointers are, we have one before. And then we just need to distribute those pointers to the two resulting nodes.
+
+And then we have to create a new pointer between the nodes that we just created. This is constant time. So this doesn't fall under the category of easy tree augmentation, because this is not isolated to the subtree. We're also dealing with its left and right subtrees, but we can still do it in constant time. Merging nodes is going to be similar. If we steal a node from our parents or form a sibling, nothing happens in terms of level links.
+
+But if we have, say, an empty node and a node that can't afford any stealing, we're taking something from our parent, bringing it down, then we have three children afterwards. We change the level pointers. It's easy to maintain. It's just a constant-sized neighborhood, right? Because we have the level links, we can get to our left and right neighbors and change where the links point to. So easy to maintain constant time.
+
+Every time we do a split or a merge, we spend additional constant time to do it. So we're already spending constant time. So it just changes everything by a constant factor. Now I'm going to have to tweak this data structure a little bit. But first, let me tell you why. What am I trying to achieve with this data structure?
+
+I'm trying to achieve something called the finger search property. So let's just think about a case where I'm doing a successful search. I'm searching for key x, and I find it in the data structure. I find it in the tree. Suppose I found one. I search for x.
+
+I found it. And then I search for another key, y. Actually, let's do the reverse. First, I found y. Now I'm searching for x. If x and y are nearby in the tree, I want to run.
+
+I want this to run especially fast, right? For example, if x is the successor of y, I want this to take constant time. That would be nice. In the worst case, x and y are very far from me in the tree, and I want that to take log n time. So how could I interpolate between constant time for finding the successor and log n time for finding the worst case search? I'm going to call this search of x from y, meaning this is a little imprecise.
+
+But what I mean is when I call search, I tell it where I've already found y. And you just say, here it is, right? Here's the node storing y. And now I'm given a key x. And I want to find that key x given the node that stores key y. So how long will this take?
+
+Will it be a good way to interpolate between constant time at one extreme, right? It will be. That's the good case when x and y are basically neighbors in sorted order versus log n time in the worst case. Distance along the graph, that would be one reasonable definition. So I have a tree, which you could think of as a graph, measure the shortest path length from x to y, the trouble with the distance in the graph, that's a reasonable suggestion, right? So when we're talking about how long this could take, that's a reasonable suggestion, but it's a very data structure specific suggestion.
+
+If I use an AVL tree without level links, then the distance could be one thing, whereas if I use a 2-3 tree, even without level links, it's gonna be a different distance. If I use a 2-3 tree with level links, it's gonna be another distance. So it's a little unsatisfying. I want this to be an answer to a question. I don't wanna phrase the question in terms of the data structure. So I'm gonna look at the rank of x and rank of y.
+
+Let's say the absolute difference. That's kind of how far they are in sorted order, okay? Do we wanna add anything? We need to add a log, right? Because in the worst case, the differences in ranks could be linear. So I wanna add a log out here just to get that log n in the worst case and a big O for safety, right?
+
+That's how much time we want to achieve. So this would be the finger search property that you can solve this problem in this much time. Again, difference in ranks is at most n, so this is at most log n, but if y is the successor of x, this will only be constant, right? Both will only be constant. So this is great if you're doing lots of searches and you tend to search for things that are nearby, but sometimes you search for things that are far away, so this gives you a nice bound. On one hand, we have, this is our goal, log difference of ranks.
+
+On the other hand, we have the suggestion that we can achieve something like this with the distance in the graph, okay? But we have a problem with this. I used to think that the data structure solved this problem, but it doesn't. Let's look at an example. Suppose x is here and y is here. Okay, this is a bit of a small tree, but if you think about it long enough, node x is the predecessor of node y.
+
+So their difference in ranks should be one, but the distance in the graph here is two. Not very impressive, but in general, you have a tree of height log n. If you look at the root and the predecessor of the root, they will have a rank difference of one by definition of predecessor, but the graph distance will be log n. So that's bad news because if we're only following pointers, there's no way to get from x to y in constant time. So we're not quite there. We're going to use another tweak to our data structure, which is to store the data in the leaves.
+
+Try to find a data structure that didn't require this and I, and still got finger search, but as far as I know, there is none. There's no such data structure. If you look at say Wikipedia about bee trees, you'll see there's a ton of variation of bee trees, bee plus trees, bee star trees. This is one of those, I think, I think bee plus trees. As you saw, bee trees or two, three trees, every node stored one or two keys and each key only existed in one spot. We're still going to put each key in one spot kind of, but it's only going to be in the leaf spots.
+
+Good news is that most nodes are leaves, right? Constant fraction of the nodes are going to be leaves. So it doesn't change too much from the space efficiency standpoint. If we just put data in the leaves, I'm not going to put any keys in the tree for now. So this is a little weird. Here's an example.
+
+So maybe we have one, two, or I guess we have one, two and five and seven and eight, nine. Let's say so we have a node here with three children, a node here with two children and a node with two children, okay? But now no keys in these nodes. Every, excuse me, every node is going to have zero children if it's a leaf or two or three children otherwise. Never have one child because then you wouldn't get logarithmic depth, okay? All the leaves are going to be at the same depth, okay?
+
+So that is a two, three tree with the data stored in the leaves. It's a useful trick to know. Now we're going to do a level link to two, three trees. So in addition to that picture, we're going to have links like this, right? With our arrows. And I should check that I can still do insert and delete into these structures.
+
+It's actually not too hard, but let's think about it. Let's first think about search. What we're going to do is data structure augmentation. We have simple tree augmentation. So I'm going to do it and each node, what the functions I'm going to store are the minimum key in the subtree and the maximum key in the subtree. There are many ways to do this, but I think this is kind of the simplest.
+
+So what this means is at this left node, I'm going to store one as the min and seven as the max. And at the top node, it's going to be one at the min, nine at the max. And here on the right, we're going to have eight as the min, nine at the max. Again, min and max of sub trees are easy to store. If I ever change a node, I can update it based on its children just by looking at the min of the leftmost child and the max of the rightmost child. If I didn't know one and nine, I could just look at the left child min and the right child max, that max, right?
+
+So in constant time, I can update the min and the max of a node given the min and the max of its children. Special case is at the leaves, okay? Then you have to actually look at the keys and compare them, but leaves only have one at most two keys. So it's pretty easy to compare them in constant time. Okay, so that's how I do the augmentation. Now, how do I do the search?
+
+Well, if I'm at a node and I'm searching for a key, let's say I'm at the top node, I'm searching for a key like eight. What I'm going to do is look at all the children. In this case, there's two. In the worst case, there's three, right? For a two, three. I look at the min and the max, and I see where does eight fall?
+
+Well, it falls in the right hand interval. If I was searching for seven and a half, I know it's not there. It's going to be between seven and eight in my lowest level. If I'm doing successor, then I go to the right. If I'm doing predecessor, I go to the left. And then I take either the maximum item or the minimum item.
+
+If I'm searching for eight, I see, oh, eight falls in the interval between eight and nine. So I should clearly take the right child among those two children. In general, there's three children, three intervals, constant time. I can find where my key falls in the interval. So search is going to take log in time again, provided I have these min and maxes. If you stare at it long enough, this is pretty much the same thing as regular search in a two, three tree, but I've put the data just one level down.
+
+So that is regular search. I still need to do finger search, but we'll get there. And now, if I want to do an insert into this data structure, what happens? Well, I search for the key. Let's say I'm inserting six. So maybe I go to the left child.
+
+It's closest interval is two, five, or I guess the interval seven. So let's go down to two, five. And well, to insert six, I'll just add a six, right? Of course, now that node is too big, right? So there's still gonna be a split case at the leaves where I have, let's say, ABC, too many keys. I'm gonna split that into AB and C.
+
+This is different from before. It used to be I would promote B to the parent because the parent needed the key there. Now the parents don't have keys. So I'm just gonna split this thing roughly in half. It works. It's still the case that whoever was the parent now has an additional child, one more child.
+
+It's just like before, if we split the root, then we get an additional level. But we could do all this and we can still maintain our level links if we want, but everything will take log N. So all this was to convince you that we can store data in the leaves. Two, three trees works just fine. Now I claimed that the graph distance in level link trees is within a constant factor of the finger search bound. So I claim I can get the finger search property in two, three trees with data in the leaves, with level links.
+
+So lots of changes here, but in the end, we're going to get a finger search bound. So here's a finger search operation. The first thing I wanna do is identify a node that I'm working with. I wanna start from wise node. So we're supposing that we're told the node a leaf that contains Y. So I'm gonna let V be that leaf.
+
+Because we're supposing we've already found Y and now all the data's in the leaves. Okay, so give me the leaf that contains Y. So that should take constant time. That's just part of the input. Now I'm gonna do a combination of going up and horizontal. So starting at a leaf, and the first thing I'm gonna do is check, does this leaf contain what I want?
+
+Does it contain the key I'm searching for, which is X? So that's gonna be the case. And at every node, I store the min and the max. So if X happens to fall between the min and the max, then I'm happy. Then I'm gonna do a regular search in V's subtree. This seems weird in the case of a leaf.
+
+In the case of a leaf, this is just to check the two keys that are there. Which one is X? Okay, but in general, I gave you the search algorithm, which was if I decide which child to take, according to the ranges, that's a downward search. This is the usual log in time thing, but we're going to claim a bound better than log in. If this is not the case, then I know X either falls before V dot min or after V dot max. So if X is less than V dot min, then I'm going to go left V, left dot V equals V, okay?
+
+I'll call that level left here to be clear. You might say that left is the left child. If there's no left child here, of course, but level left is clear enough. We take the horizontal left pointer and otherwise X is greater than V dot max. And in that case, I'll go right case. That seems logical.
+
+And in both cases, we're going up V equals V dot parent. So we're gonna go up and then we're gonna go either left or right. And we're gonna keep doing that until we find a subtree that contains X in terms of range of key range. And then we're going to stop that part. And we're just going to do downward search. I'm gonna do a downward search, which was this regular algorithm.
+
+And then whenever, whatever it finds, that's what I returned. So I claim the algorithm should be clear enough. What's less clear is that it achieves the bounds that we want, but I claim that this will achieve the finger search property. So let me draw a picture of what this looks like, kind of generically. On small examples, it's hard to see what's going on. So I'm gonna draw a piece of a larger example.
+
+Let's say we start here. This is where Y is, okay? I'm searching for X. Suppose X is to the right, okay? So X is to the right. And I'll discover that the range with just the Y node, it maybe contains one other key.
+
+So I'll find that range is too small. So I'm gonna go follow the level right pointer, and I'm gonna go to some other node, okay? Then I'm gonna go to the parent, maybe, oh, did it put all of this together? Okay, okay. Okay, so maybe the, we go to the, okay, so we're gonna go to the parent. Maybe the parent of those children is, yeah, okay, so maybe that range is still too low.
+
+So I need to go to the right to get to X. Okay, so I'm gonna follow a left pointer to the right. I find a new subtree. I'm trying to draw your subtree here, so you see as well. I'll have to go to its parent, okay? Maybe I find that subtree, the max is still too small, so I have to go to the right again, then I take the parent.
+
+So this is an example of a rightward parent, and we also have an example of a leftward parent. Can you see my, I don't know if you can see that, but leftward parents. Anyway, so if I know that X is somewhere in here at the end, so I'm at my far right of this diagram, okay? If I know that X is somewhere in there, then I'll do a downward search, shown with my little squiggly there. One of my downward searches will find the key X that I'm searching for, because I'm in the case where X is between v.min and v.max, so I know that it's in there somewhere. It could be X doesn't exist, but its predecessor or successor is somewhere in there.
+
+And so one of the downward search subtrees will contain the X range, and then I go follow that path, and I keep going down until I find X or its predecessor or successor. Once I find its predecessor, I can use a level right pointer to find its successor and so on. So that's kind of the general picture of what's going on. If we keep going rightward, we keep going up. Suppose we do K up steps. So let's look at this last step here is iteration K.
+
+How high am I in the tree? I started at the leaf level. Remember in a two, three tree, all the leaves have the same level, and I went up every step. So in iteration K, that means I've gone up K times, and I've gone either to the right or to the left K times. You can show it if you start going right, and if you keep going right, if you, whoops, there we go. If you initially go left, you'll keep going left.
+
+It doesn't matter too much. At iteration K, I am at height K or K minus one, depending on how you wanna count, but let's call it K. So when I do this right pointer here, bolded here, I know that, for example, I'm skipping over all of these keys, all of the keys down, the keys are in the leaves. So all of these things down here, I'm jumping over them. How many keys are down here? Can you tell me roughly how many keys I'm skipping over when I move, when I'm moving right at height K?
+
+It's not a unique answer, but you can give me some bounds, K? Think about that for a moment. Cool. It's the number of children to the K power, except we don't know the number of children. But it's between two and three. The closer one should be easy, right?
+
+But so it's between two and three children. So that's the number. If you look at height K tree, how many leaves does it have? It's gonna be between two to the K and three to the K, because I have between two and three children at every node. And so it's exponential in K, that's all I need. So in iteration K, I'm skipping at least some constant times two to the K, maybe two to the K minus one or to the K minus two, I'm being sloppy, it doesn't matter.
+
+As long as I'm in, as long as it's exponential in K, I'm happy because I'm supposing that X and Y are somewhat close, okay? So let's call that rank difference D. Then I claim the number of iterations I'll need to do in this loop is at most order log D, because if when I get to the Kth iteration, I'm jumping over two to the K elements, okay? How large does K have to be before two to the K is smaller than D? Well, log D, log base two, right? The number of iterations is order log D, where rank is the difference, yeah, where D is the rank difference, right?
+
+D is the absolute value between rank of X and rank of Y. Again, we're being a little sloppy here, but you probably wanna use induction, right? You need to show that really these items here that you're skipping over are strictly between X and Y, but we know that there's only D items between X or Y. Actually, D minus one, I guess. So as soon as we've skipped over all the items between X and Y, then we'll find a range that contains X and we'll do the downward search, okay? Now, how long does the downward search cost?
+
+Whatever the height of the tree is, right? What's the height of the tree? That's the number of iterations. So the total cost, the downward search will cost the same as the rest of the search. And so the total cost is going to be order log D. So finger searching, level links, data in the leaves, it's nice, especially if you're doing many consecutive searches that are all relatively close to each other, okay?
+
+That's it for this time. I will see you next week.

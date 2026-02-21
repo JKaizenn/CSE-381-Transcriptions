@@ -1,0 +1,213 @@
+Okay. Let's get started. So now we're going to continue the theme of randomization and data structures. Last time we saw skip lists. Skip lists solve the predecessor successor problem. You can search for an item.
+
+If it's not there, you get the closest item on either side in log n with high probability. We already knew how to do that deterministically. Today we're going to solve a slightly different problem. The dictionary problem with hash tables. And we're going to get constant time and not with high probability. That's hard.
+
+But we'll do constant expected time. Okay. So that's in some sense better. It's going to solve a weaker problem, but we're going to get a tighter bound constant instead of logarithmic. It's happening. Okay.
+
+So for starters, let me tell you what problem we were solving and the basics of hashing which you learned earlier in the course. I'm going to give you this problem a name because it's important and we often forget to distinguish between the two types of things. This is kind of an old term, but I would call this an abstract data type. This is just the problem specification of what you're trying to do. You might call this an interface or something. This is the problem statement versus the data structure is how you actually solve it.
+
+The hash tables are the data structure. The dictionary is the problem or the abstract data type. So what we're doing today as in most data structures is maintaining a dynamic set of items. And here I'm going to distinguish between the items and their keys. Each item has a key and normally you'd think of there also being a value like in Python, but we're just worrying about the keys and moving the items around. And we want to support three operations.
+
+We want to be able to insert an item, delete an item and search for a key. But search is going to be different from what we know from AVL trees or skip lists or even VEB, right? That was predecessor, successor search. Here you just want to know, is there an item with that key and return it? This is often called an exact search because if the key is not in there, you learn absolutely nothing. You can't find the nearest key.
+
+And for whatever reason, this is called a dictionary problem, though it's unlike a real dictionary. Usually when you search for a word, you do find its neighbors. Here we're just going to either if the key is there, we find it, otherwise not. And this is exactly what a Python dictionary implements. So today, I'm going to assume all items have distinct keys. So in the insertion, I will assume key is not already in the table.
+
+With a little bit of work, you can allow inserting an item with an existing key and you just overwrite that existing item. But we're not going to worry about that here. So we could, of course, solve this using an AVL tree in log-in time. But our goal is to do better because it's an easier problem. And I'm going to remind you of the simplest way you learned to do, which was hashing, hashing with chaining in earlier lectures. And the catch is we didn't really analyze this fully yet.
+
+So we're going to make a constant time per operation and it's going to be expected or something and linear space. And remember, the variables we care about, there's u, n, and m. So u is the size of the universe. This is all possible keys. This is the space of all possible keys. n is the size of the set you're currently storing. So that's the number of items or keys currently in the data structure.
+
+And then m is the size of your table. So say it's the number of slots in your table. So hopefully you remember this picture. You have a table of slots. Each of them is a pointer to a linked list. Then we have a hash function which maps each universe item into one of these slots.
+
+And the linked list here is storing all the items that hash to that slot. So we have a hash function which maps the universe. Okay. I'm going to assume the universe has already been mapped into integer 0 to u minus 1. And it maps to slots. And when we do hashing with chaining, I think I mentioned this last week, the bounds you get, we achieve a bound of 1 plus alpha, where alpha is the load factor n over m.
+
+The average number of items you'd expect to hash to a slot is the number of items divided by the number of slots. And we proved this earlier in the semester, but we assumed something called simple uniform hashing. Simple uniform hashing is an assumption that makes the analysis very simple, but it's also basically cheating. So today our goal is to not cheat. It's a nice warm up. We don't like cheating.
+
+So you may recall the assumption is about the hash function. You want a good hash function. And good means this. I want the probability of two distinct keys mapping to the same slot to be 1 over m if there are m slots. If everything was completely random, if h was basically choosing a random number for every key, then that's what we expect to happen. So this is like the idealized scenario.
+
+Now we can't have a hash function choosing a random number for every key because it has to choose the same value if you give it the same key, right? So it has to be some kind of deterministic strategy or at least a repeatable strategy where if you plug in the same key, you get the same thing. So really what this assumption is saying is that the keys that you give are in some sense random. If I give you random keys and I have not too crazy hash functions, then this will be true. But I don't like assuming anything about the keys maybe. I want my keys to be worst case.
+
+There's lots of examples in the real world where you can apply some hash function and it turns out your data has some very particular structure. And if you choose a bad hash function, then your hash table gets really, really slow. Maybe everything hashes to the same slot. We want to avoid that. After today, you'll know how to achieve constant expected time no matter what your keys are for worst case keys. But it can take some work to do that, okay?
+
+So this assumption requires assuming that the keys are random. And this is what we would call an average case analysis. And you might think that average case analysis is necessary for random algorithms, but that's not true. And we saw that last week with QuickSort. QuickSort, if you say I will always choose A of 1 to be my partition element, that's what the textbook calls basic QuickSort if you checked out the textbook. Then for an average input that will do really well, right?
+
+If you have a uniform random permutation of items and you sort with the method of always choosing the first item as your partition, then that will be n log n on average if your data is average, okay? But we saw that we could avoid that assumption by choosing a random pivot. If you choose a random pivot, then you don't need to assume anything about the input. You just need to assume that the pivots are random. So it's a big difference between assuming your inputs are random versus assuming your coin flips are random. It's pretty reasonable to assume you can flip coins, but it's not so reasonable to assume that your input is random.
+
+So we'd like to avoid average case analysis whenever we can, and that's the goal of today. So enough about hashing. We'll come back to that in a little bit. Hash functions essentially take up this idea of taking your key, chopping it up into pieces and mixing it, all right? So we're going to cover two ways to get strong constant time bounds. Probably the most useful one is called universal hashing.
+
+We'll spend most of our time on that. But theoretically, and the cooler one, I think the theoretically cooler one is called perfect hashing. Universal hashing, we're going to guarantee that there are very few conflicts and expectations. Perfect hashing, we're going to guarantee that there are zero conflicts with this. The catch is, at least in its obvious form, it only works for static sets. If you forbid, insert, and delete and just want to search, then perfect hashing is a good method.
+
+So if you're actually storing a dictionary, like the OED, English doesn't change that quickly, right? So you can afford to recompute your data structure whenever you realize a new addition. But we're going to start with universal hashing. This is a nice, powerful technique. It works for dynamic data. Okay?
+
+Insert, delete, and search will be constant, expected time with no assumptions about the input. So it will not be average case. It's in some sense, worst case, but randomized. So the idea is we need to do something random. If you just say, well, I choose one hash function once and for all, and I use that for my table. Okay?
+
+Maybe my table doubles in size and I change the hash function. But there's no randomness there. We need to introduce randomness somehow into this data structure. And the way we're going to do that is in how we choose the hash function. We're going to choose our hash function randomly from a set of hash functions, call it H. This is going to be a universal hash family.
+
+We're going to imagine there are many possible hash functions we could choose. If we choose one of them uniformly at random, that's a random choice. And that randomness is going to be enough that we no longer need to assume anything about the keys. So that, so for that to work, we need some assumption about H. Maybe it's just a set of one hash function. That really wouldn't add much randomness.
+
+Two would also not add much randomness. We need a lot of them. And so we're going to require H to have this property. We're going to call it the property of universality. Generally you would call it a universal hash family, just a set of hash functions. What we want is that, so we're choosing our hash function, little h from big H.
+
+And among those choices, we want the probability that two keys hash to the same value to be small. I'll say, and this is very similar looking to simple uniform hashing. It looks almost the same here except I switched from K1 and K2 to K and K prime. But same thing. But what we're, so we're taking the probability over what we're assuming is random is different. Or we're assuming K1 and K2 are because H was fixed.
+
+This was an assumption about the inputs. Now we're thinking of K and K prime as being fixed. So this has to work for every pair of distinct keys. And the probability we're considering is the distribution of H. So we're trying all the different H's or we're trying little h uniformly at random. We want the probability that a random H makes K and K prime collide to be at most one over M.
+
+So this is an assumption about big H. We'll see how to achieve this assumption in a little bit. Let me first prove to you that it's enough. The key difference between this theorem and this theorem we covered earlier in the course is we get to make no assumptions about the keys. They are arbitrary. You get to choose them however you want.
+
+But then I choose a random hash function. The hash function cannot depend on these keys, but it's going to be random. And I choose the hash function after you choose the keys. That's important. So we choose a random little h and big H. And we're assuming big H is universal.
+
+Then the expected number of keys in a slot among those N keys is at most one plus alpha. Alpha is N over M. So this is exactly what we had before. And here we're talking about time bound. But the time bound followed because the length of each chain was expected to be one plus alpha. And here the expectation is over the choice of H, not assuming anything about keys.
+
+So let's prove this. Let's give the keys a name. Use K1 up to KN. And I just want to compute that expectation. So I want to compute, let's say, the number of keys colliding with one of those keys. Let's say Ki.
+
+So this is, of course, the size of that slot that Ki happens to go to. This is going to work for all i. And so if I can say that this is at most one over alpha for each i, then I have my theorem. So this is just another way to talk about it. Now the number of keys colliding with Ki, here's a general trick. Whenever you want to count something in expectation, a very helpful tool is indicator random variables.
+
+Let's name all of the different events that we want to count. And then basically we're summing those variables. So I'm going to say, I'm going to use i, j to be an indicator random variable. So it's going to be one or zero. One, if hash function of Ki equals the hash function of kj. So there's a collision between Ki and kj and zero if they hash to different slots.
+
+Now this is, it's a random variable because it depends on h and h is a random thing. Ki and kj are not random. They're given to you. And then I want to know when does h back those two keys to the same slot? And so the expectation number is really just the sum of i, j over all j. This is the same thing.
+
+The number here is the sum for j not equal to i of i, i, j. Because we get one every time they collide zero otherwise. So that counts how many collide. Once we have it in this notation, we can use all the great lemmas and theorems about, in this case, e expectation. So we want to talk about expectation of the simplest thing possible. So linearity, let's let's us put the e inside the sum without losing anything.
+
+Okay, this is an equation two. Now the expectation of an indicator random variable is pretty simple because the zeros don't contribute to the expectations. The ones contribute one. So this is the same thing as just the probability of this being one. So we sum of j equal to one. Okay, ij equal one.
+
+That of the probability that i, i, j equals one. And the probability that i, i, j equals one. Well, that's the probability that h, k, i equals h, k, j happens. And what's the probability that that happens at most one over m in our universality. Okay. Oh, and then we have a plus one because I want to count the total number of keys that hash to the same place as k i and k i itself always, of course, hashes to k i.
+
+So this tells you that we could find a if we could find a universal hash family, then we're guaranteed insert, delete and search cost order one plus alpha in expectation. And the expectation is only over the choice of h not over the inputs. Okay, I think I've stressed that enough, hopefully. But the remaining question is, can we actually design a universal hash family? So let me give you an example of a bad hash family, sort of an oxymoron, but it's possible. Here's a hash family that's universal. h is the set of all hash functions, h from zero one to u minus one.
+
+That's what we call uniform hashing. It makes analysis really easy because you get to assume, I mean, I mean, this says ahead of time for every universe item, I'm going to choose a random slot to put it. And then I'll just remember that. And so whenever you give me the key, I'll just map it by h and then I get a consistent slot and definitely it's universal. What's bad about this hash function then? Think about what could be bad about it.
+
+It takes too much time and space, right? That's the bad thing. We need you time to compute all those random numbers. And we need you space to store that hash function in order to get consistency. We need to keep track of all those hash function values, and that's not good. You could try to not store them at all, you know, use a hash table, but you can't use a hash table to store a hash function.
+
+That would be that would be the infinite recursion. So but but at least they're out there, right? So the challenge is to find an efficient hash family that doesn't take too much space to store and doesn't take too much time to compute. Okay, so we're allowing randomness, but we don't want too much randomness. We can't afford you units of time of randomness. I mean, you could be huge, right?
+
+We're only doing n operations, but probably on this hash table, you could be way bigger than n. We don't want to have to recompute this giant table and then use it for like five steps. It would be really, really slow, even amortized. So here's one that I'll analyze. We're going to need a little bit of number theory, just prime numbers. And you've probably heard of the idea of your hash table size being prime.
+
+Here, you'll see why that's useful, at least for this family. You don't always need primality, but it's going to make this family work. So I'm going to assume that my table size is prime. Now really, my table size is doubling. So that's a little awkward, but luckily there are algorithms given a number to find a nearby prime number. We're not going to cover that here, but that's an algorithm number theory thing.
+
+And in polylogarismic time, I guess you can find a nearby prime number. So you want it to be a power of two, and you'll just look around for a nearby prime number. And then we have a prime that's about the same size. So that will work just as well from a prime doubling perspective. Then furthermore, for convenience, I'm going to assume that U is an integer power of M. I want my universe to be a power of that prime.
+
+I mean, if it isn't, just make you a little bit larger. It's okay if U gets bigger, as long as it covers all the same items. Now, once I view my universe as a power of the table size, a natural thing to do is take my universe items to take my input integers and to think of them as base M. Okay? So that's what I'm going to do. I'm going to view a key K in base M.
+
+Whenever I have a key, I can think of it as a vector of subkeys K1 up to KR minus 1. There are digits in base M because of this relationship. And I don't even care which is the least significant and which is the most significant. That won't matter whatsoever, right? Whichever order you want to think of it. And each of the KIs here, I guess, is between 0 and M minus 1.
+
+Okay? So far, so good. So with this perspective, the base M perspective, I can define a dot product hash function as follows. Okay? It's going to be parameters parameterized by another key. I'll call it A, which we can think of again as a vector.
+
+So I want to define H sub A of K. So this is parameterized by A, but it's a function of a given key K as the dot product of those two vectors mod M. So remember, dot products are just the sum from I equals 0 to R minus 1 of A1 times Ki, sorry. I want to do all of that modulo M. The hash family H is just all of these HAs for all possible choices of A. A was a key, so it comes from the universe U.
+
+And so what that means is to do universal hashing, I want to choose one of these HAs uniformly at random. And how do I do that? I just choose a uniformly A at random, okay? Pretty easy. It's one random value from one random key. So that should take constant time and constant space to store one number.
+
+In general, we're in a world with our word RAM model, right? Random access machine, which we have talked about before. The word RAM assumes that in general we're manipulating integers. And integers fit in a word. And the computational assumption is that manipulating a constant number of words and doing essentially any operation you want on a constant number of words takes constant time, okay? And the other part of the word RAM model is to assume that the things you care about fit in a word.
+
+Say individual data values. Here we're talking about keys fit in a word. Here I'm going to use it to assume that we can compute h sub A of k in constant time. In practice, this will be done by implementing this computation, this dot product computation in hardware. And the reason a 64-bit addition on a modern processor or a 32-bit on most phones takes constant time is because there's hardware that's designed to do that really fast. And in general, we're assuming that these things we care about fit in a single word.
+
+Okay, so we want to prove the property if we choose A random, a random A, then the probability of two keys, k and k prime, which are distinct mapping via h to the same value is at most 1 minus m, okay? So let's prove that. So we're given two keys. We have no control over them because this has to work for all keys that are distinct. The only thing we know is that they're distinct. Now, if two keys are distinct, then their vectors must be different.
+
+So if two vectors are distinct, that means that at least one of them must be different. Okay, so this should sound familiar. So this was like in matrix multiplication verification algorithm, okay? So k and k prime differ in some digit. Let's call this digit D. So k sub D is different from k sub D prime.
+
+And I want to compute this probability. The probability is over A. I'm choosing a uniform, I'm choosing A uniformly at random. I want another probability that maps k to k prime to the same slot. It's the probability over A that the dot product of A and k is the same thing as when I do the dot product with k prime mod m. These two, that sum should come out the same mod m.
+
+So let's move the right part over to the left side, because in both cases, we have the same A i. So I can group terms and say that this probability, probability sum over i equals zero to r minus one of A i times k i minus k i prime equals zero mod m. Now, we care about the digit D. Remember, D is a place where we know that k i minus k i prime is non-zero. So we can separate out the terms for D and everything but D. So this is the same as, let's do the D term first.
+
+So we have A D times k D minus k D prime. That's one term. I'm going to write the summation of i not equal to D of A i k i minus k i prime. So these ones, some of them might be zero, some are not. Here, we're not going to worry about it. It's just enough to isolate one term that is non-zero.
+
+So here's where I'm going to use a little bit of number theory. I haven't yet used that m is prime. I require m is prime because when you're working modulo m, you have multiplicative inverses. Because k D minus k D prime is not zero, there is something I can multiply on both sides to get it to cancel out and become one. For every value x, there's value y. So x times y equals one modulo m.
+
+And you can even compute it in constant time in a reasonable model. So then I can say that I want the probability that A D is minus k D, no, what? Yeah, minus k D inverse prime. That's the multiplicative inverse that I was talking about. Okay. This is in line four of the proof if you're following along.
+
+And then the sum i not equal to D, whatever. I don't really care what this is too much. The point is that I care about, it's all about A D. Remember, we're choosing a uniformly at random. This is the same thing as choosing each of the AIs independently, uniformly at random. So now we have this thing, this monstrosity, but it does not depend on A D.
+
+In fact, it's independent of A D. So I'm going to write it as a function of k and k prime, because those are given to us and fixed. And then it's also a function of A not and A one, everything except D. So A D minus one, A D plus one, and so on up to A R minus one. Okay. It's very awkward to write, but everything except A D appears here because we have I not equal to D.
+
+So these AIs are random variables, but we're assuming that they're all chosen independently from each other. So we don't really care what's going on in this function. It's something. And if I rewrite this probability, it's the probability over the choice of A, and I can separate out the choice of all these things from the choice of A D. And it's just a useful formula. Okay.
+
+We have A not equal to D. All the choices of those guys separately from the probability of choosing A D of A D equal to the function. If you just think about the definition of expectation, this is doing the same thing. Right. We're thinking of first choosing AIs where I is not equal to D. And then we choose A D and this computation will come out the same as that.
+
+Okay. But this is the probability of a uniformly random number equaling something. So we just need to think about that. That would be pretty unlikely. That would be one over you, but this is all working modulo M. So if I take a uniformly random integer, the chance of it hitting any particular value mod M is one over M.
+
+And that's universality. So in this case, you get exactly one over M. No, okay, no, no. No less than or equal to. Sorry, we should have explained that. It's in the expectation of one over M.
+
+But that's one over M because one over M has no random parts in it. Okay. All right. So that ends universal hashing. So at this point, we have at least one universal hash family. So we're just choosing in this case, A uniformly at random.
+
+In the other method, we choose A and B uniformly at random. And then we build our hash table and the hash function depends on M. So every time we double our table size, we're going to have to choose a new hash function for our new value of M. So this will give us constant expected time or in general, one plus alpha if you're not doing table doubling for insert, delete, and exact search, just building on the hashing with changing. Okay. So let's move on to perfect hashing.
+
+This is more exciting. I would say this method will be cool from a data structure's perspective and a probability perspective. I love this kind of stuff because as I mentioned in the course intro, my education and background is in statistics. But so far, data structures are what we know from the first half of the course. So now we're going to go up a level. Literally, we're going to have two levels.
+
+Okay. So here we're solving, you can actually make this data structure dynamic, but we're going to solve a static dictionary problem. Which is when you have no inserts and deletes, you're given the keys up front, you're given N keys. You want to build a table that supports search and that's it. You want search to be constant time and perfect hashing. We will achieve constant time, worst case for search.
+
+So that's a little better than before because before we were just doing constant expected time for search, but it's worst case in that we have to know the keys up in advance. Okay. We're going to take the linear space in worst case. And then the remaining question is how long does it take to build this data structure? Okay. And for now, I'll just say it's polynomial time.
+
+It's actually going to be nearly linear. It's going to take a little bit for us to build on the structure. But once you have it, you would per anyway, you'd have a perfect scenario. There's going to be in some sense, no collisions in our hash table. So it would be constant times first search and linear space. Okay.
+
+So that part's great. The only catch is it's static. All right. So the big idea for perfect hashing is to use two levels. So in our picture, we have our universe and we're mapping that via hash functions h1 into a table. Okay.
+
+It's going to have some table size. I'm sorry. Well, it's going to have some table size m. And we're going to set m to be within a constant factor of n. So right now it looks exactly like regular. It's going to be a universal. h1 is chosen from a universal hash family.
+
+So universal hashing applies. The trouble is we're going to get some lists and we don't want to store the set of colliding elements. The set of elements that hash to that place was a linked list because linked lists are slow, right? Instead of we're going to store them in a hash table. Sounds crazy. But we're going to have, so anyway, there's going to be we've got h2, 1.
+
+There's going to be another hash function h2, 0 that maps to some other hash table. These hash tables are going to be varying sizes. Some of them will be size 0 because nothing hashes there. But in general, each of these slots is going to map instead of a linked list to a hash table. Okay. I'm going to guarantee in the second level of hashing there's zero collision.
+
+So let that sink in a little bit. Let me show you more carefully what I'm doing. So h1 is picked from a universal hash family where m is theta n. I want to put theta. I mean, I could put m equals n, but sometimes we require m to be prime. Okay.
+
+To be a prime, right? And then at the first level, we're basically doing hashing with Cheney. Okay. And now I want to look at each slot in that hash table. So between 0 and m minus 1, I'm going to let ij be the number of keys in that hash. It's the length of the list that would go there.
+
+It's going to be the number of keys among just the n keys, number of keys hashing to slot. J. So now the big question is if I have ij keys here, no, am I using i or l? I'm using l. If I have lj keys here, how big do I make that table? You might say, well, I make theta lj.
+
+That's what I always do, but that's not what I'm going to do. That wouldn't help. We get exactly, I think the same number of collisions if we did that more or less in expectation. So we're going to do something else. We're going to pick a hash function from a universal family h2j. It again maps the same universe.
+
+The key thing is the size of the hash table I'm going to be choosing, which is lj squared. Okay. So there are three elements that happen to hash to the slot. So follow along the arrows. The table will have size nine, k shown in red here. So it's mostly empty.
+
+Only square root fraction, if that's a word, if that's a phrase will be full. Okay. Most of it's empty. Why squared? Do you have any ideas about that? I claim this will guarantee zero collisions with decent chance.
+
+Okay. With one half probability, I'm going to end up with no collisions. So the whole name of the game here is the birthday paradox. I think we talked about that in the beginning of lecture. If I have n people and n squared possible birthdays, the probability of getting a collision, a shared birthday is one half. Okay.
+
+I'm going to do it the opposite way. I'm going to guarantee there's so many birthdays that no two of them will collide with probability of one half. One half is not great. We're going to fix that. So actually I haven't given you the whole algorithm yet. There's two steps, one and two, right?
+
+But there are also two other steps, 1.5 and 2.5. But this is the right idea that will make things work in expectation. But we're going to tweak it a little bit. Okay. So let me first tell you step 1.5, it fits between the two. I want that the space of this data structure is linear.
+
+I need to make sure it is. If the sum j equals zero to m minus one of lj squared is bigger than some constant times n, we'll figure out what that constant is later, then redo step one. So after I do step one, I know how big all my tables are going to be. If the sum of those squares is bigger than linear, then start over. Then 2.5 says I want there to be zero collisions in each of these hash tables. It's only going to happen with probability of one half.
+
+So if it doesn't happen, just try again. So 2.5 is while there's some hash function h2j that maps two keys that were given to the same slot at the second level, this is for some j and let's say ki different than ki prime. But they map to the same place by the same, by the first hash function. So if two keys map to the same secondary table and there's a conflict, then I'm just going to redo that construction. So I'm going to re-pick h2j. h2j was a random choice. Okay.
+
+So if I get a bad choice, I'll just try another one. Just keep randomly choosing the a or randomly choosing this hash function until there are zero collisions in that second table. And then I'm going to do this for each table. So we worry about how long these will take, but I claim expected constant number of trials. And after we do this y loop, there are no collisions with the proper notation for the word collisions, which is two different keys mapping to the same value. So at this point, we have guaranteed that searches are constant time for worst case after we do all these four steps because we apply h1 and we figure out which slot we fit in.
+
+So it's slot j, then we apply h2j. And if your items in the overall table, it should be in that secondary table because there are no collisions you can see. Yeah. So because there are no collisions, you can see is that one item, the one I'm looking for, we're asking ourselves that, right? If so, return it. If not, it's not anywhere.
+
+If there are no collisions, then I don't need chains coming out of it because it's just a single item. The big question. So constant worst case space because 1.5 guarantees that. Constant worst case time first search. The big question is, how long does it take to build? How many times do we have to reduce steps one and two before we get decent, but before we get the perfect hash table?
+
+Okay. I just want to preface this with, yeah. Okay. Again, with the proof thing, don't freak out. You're not expected to know this per se. Getting good at proofs comes with time and practice.
+
+Okay. So the probability that we choose a good hash function and that these particular keys don't hit is at most 1 over Li squared. So that is basically Li squared over 2. And so this is at most 1.5. It's a slightly less than Li squared over 2. Okay.
+
+So this is at most 1.5. And this is basically a birthday paradox in this particular case. That means there is a probability of at least half that there is zero collisions in one of these tables. So that means I'm basically flipping a fair coin. If I ever get ahead, I'm happy. Each time I get a tails, I have to reflip.
+
+This should sound familiar from last time. So this is two expected trials or log in with high probability. We've proved log in with high probability. That's the same as saying the number of levels in a skip list is log in with high probability. How many times do I have to flip a coin before I get heads? Definitely at most log in.
+
+Now we have to do this for each secondary table. There are M equal theta and secondary tables. Right? There's a slight question of how big the tables are. If one of the tables is like linear size, then I have to spend linear time for a trial. And then I multiply that by the number of trials and also the number of different things that would be like n squared log nn.
+
+But you know a secondary table better not have linear sites. I mean a linear number of Li equal n. That would be bad because then Li squared is n squared. And we guarantee that we had linear space. So in fact, you can prove with another sure not found, like we learned last time, that all the Li's are pretty small, not constant, but logarithmic. So Li is order log n with high probability for each i and therefore for all i.
+
+So I can just change the alpha, excuse me, my minus 1n to the alpha and get that for all i. This happens. In fact, the right answer is log over log log. If you want to do some really, really messy analysis, you can look at this, but logarithmic is fine for us. So what this means is we're doing n different things for each of them with high probability. Li is of size log n.
+
+And then maybe we'll have to do like log n trials repeating until we get a good hash function there. And so the total build time for steps 1 and 2.5 is going to be at most n times log n squared. No, log squared n. You can prove a tighter bound, but it's polynomial, okay? That's all I want to go. Yeah, okay.
+
+It's almost linear, okay? So I'm left with one last thing to analyze, which is step 1.5. This to me is maybe the most surprising thing that it works out. I mean, here we designed, we did this Li to Li squared, so the birthday paradox would happen. This is not surprising. I mean, it's a cool idea, but once you have the idea, it's not surprising that it works.
+
+What's a little more surprising is that squaring is okay from a space perspective. 1.5 says we are going to have to rebuild that first table until the sum of these squared lengths is that most linear. I can guarantee that each of these is logarithmic, so the sum of the squares is at most like log n log squared n, but I claim I can get linear, okay? So let's do that. So for step 1.5, we're looking at what is the expectation of the sum of the LJ squares being more than linear? First thing is I claim the expectation is linear. So again, whenever we're counting something, I mean, this is basically the total number of pairs of items that collide at the first level with double counting.
+
+So I mean, if you think of LJ and then I make a complete graph of those LJ items, that's going to have like the squared number of edges, okay? So if I also multiply by 2, so this is the same thing as counting how many pairs of items map to the same spot, the same slot, that I can write as an indicator random variable, which lets me use the linearity of expectation, which makes me happy because then everything is simple. So I'm going to write IIJ. This is going to be 1 if each 1 of Ki, I guess equals K, I'm sorry, equals H1 if KJ is going to be 0, if H1 otherwise, okay? This is the total number of pairwise colliding items, including I versus I. And so like if LI equals 1, LI squared is also 1.
+
+There's one item colliding with itself. So now we can use linearity of expectation, put the E inside. So this is some I equals 1 to N, some J equals 1 to N of the expectation of IIJ. But we know the expectation of IIJ is the probability of it equaling 1 because it's an indicator random variable. The probability of this happening over our choice of H1 is at most 1 over N by universality. Here it's actually is M because we're at the first level.
+
+So this is at most 1 over M, which is theta N. So when I does not equal J, so it's a little bit annoying, I do have to separate the II terms from the I and different I not equal to J terms. But there's only, I mean, it's basically the diagonal of the matrix, the N things that will always collide with themselves. So we're going to get like N plus the number of I's not equal to the pair's double counted, right? So it's like 2 times N choose 2, but we get to divide by M. So this is like N squared over N.
+
+So we get order N. So that's, well, that's cool. Expect the space is linear. This is what makes everything work. So last class was about getting with high probability bounds when we're working with logs. When you want to get something, when you want to get that something is log with high probability, you have to use with respect to N, you have to use a Chernoff bound.
+
+But this is about now I want to show that the space is linear with high probability. Linear is actually really easy. You can use a much weaker bound called a Markov probability. There we go. So I want to claim that the probability of H1 of this thing, of I, J squared being bigger than some constant time N, is at most the expectation of that thing divided by C. And this is Markov's inequality.
+
+It holds for anything here. So this is nice because we know that our expectation is linear. So we're getting like a linear function divided by C and remember we get to choose C. The step said, if it's bigger than some constant times N, then we're redoing the thing. So I can choose C to be 100, whatever. I'm going to choose it to be twice this constant.
+
+And then this is at most half. So the probability of my space being too big is at most half. We're back to coin flipping. Every time I flip a coin, if I get heads, I have the right amount of space at less than C times N space. If I get tails, I try again. So the expected number of trials is at, is two at most N trials trials.
+
+And it's also log N trials with high probability. How much time do I spend for each trial? Linear time. I choose one hash function. I hash all the items. I count the number of collisions squared or the sum of I, I'm sorry, LJ squared.
+
+That takes linear time to do. And so the total work I'm doing for these steps is N log N. So N log N to do step one and one prime and log squared N to do steps two and two prime. Overall, N polylog or polynomial time. And we get guaranteed no collisions for static data. Constant worst case search and linear worst case space.
+
+Okay. This is kind of surprising that this works out, but everything's nice. And now you really know hashing.

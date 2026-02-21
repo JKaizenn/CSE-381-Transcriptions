@@ -1,0 +1,259 @@
+Okay, let's get started for today. So today we're going to do another divide and conquer algorithm called the fast Fourier transform. It's used in all sorts of contexts, especially digital digital signal, mp3 compression, all sorts of things, but we're going to think about it in the context of divide and conquer and polynomials. So let me remind you, I mean, this this class is all about polynomial time, but usually with polynomial time, we only care about the lead term today. And today only pretty much we're going to be thinking about all terms in the polynomial. So I'll talk about polynomials, mostly a and b, you have a constant term and then a linear term and a quadratic term and so on up to I'll say there are n terms, which means the last one is an n minus one.
+
+Normally the polynomial normally the the degree the polynomial here is n minus one. I wish the degree was defined to be n here, but whatever. Not going to change definitions of algebra. So this is the traditional algebraic way of thinking about a polynomial. Of course, you can write it with a summation notation, aka x to the k k equals zero to n minus one, we'll jump back and forth between them a bit. I'm also going to introduce a vector notation for polynomials because so so the AIs are real numbers typically, we might change that at some point, but usually a common reason maybe you don't care much about polynomials, but you definitely care about vectors.
+
+Any kind of one dimensional dataset is a string of real numbers, like if you're sampling audio like right now I'm recording through a microphone. You're seeing lots of different you know the movement of the the membrane in this microphone over time. You're sampling whatever 40,000 times the second each second. Each one you're measuring a real number about where that thing is that's a sequence of numbers. Now you can convert it into a polynomial if you want. They're the same thing.
+
+X is not necessarily meaningful here. We really care about other coefficients. Now given such a polynomial, there are three typical things that we want to do. So these are the operations on polynomials. I'll say why we want to do them in a second. So the obvious one if you if you do care about x is some kind of evaluation.
+
+So maybe I give you a polynomial A of x and I give you a number let's call it x not and I want to compute what is A of x not. So if we look at our previous slide, x here is a general variable, but if I give you an actual real number let's say for the x's what would that add up to? So how would you solve before we go on to the other operations? There's an obvious way. You compute all the terms and add them up, but if you do that naively computing x to the k in this form maybe computing x to the k maybe takes k multiplications and so the total runtime of the quadratic. But we can do better than that.
+
+Once you've computed x to the k you can compute x to the k plus one with one multiplication and so you can compute all x to the n's in linear time and then you're basically doing a dot product between x to the k's and the A vector. So that's one way to do it. There's a slightly slicker way to write it called Horner's Rule, but that's doing exactly the same thing. This is just a nice algebraic way of writing it. A of x is the same as A naught plus x times A1 plus x times A2 plus and so on, right? x times A n minus one and then lots of closed parentheses here. So this is of course equivalent to that expression by the law of distribution and this is essentially doing the x products one at a time.
+
+So this is clearly order n additions and multiplication so we get order n time. In this lecture time is the number of arithmetic operations that their model. Assume it takes constant time to to multiply or add two real numbers. Okay so so evaluation that's easy. Linear time for today's good quadratic is bad. We want to be quadratic.
+
+Okay second thing you might want to do is polynomials is add them and the third thing is multiply them. So we're given two polynomials, A of x and B of x and we want to compute a new polynomial C of x that is the summation. How do you define the summation? Well you would like C of x to equal A of x plus B of x for all x. That's the definition. Of course we can do it algebraically as well because these numbers in the end for any x this evaluates to a number.
+
+So if we add two polynomials in this form one with A i's and one with B i's and all we're doing is is adding corresponding A i's and B i's. So this is easy. We just need C k to equal A k plus B k for all k. So again linear time no problem. Third operation is the exciting one. The hard the hard one to get good otherwise this lecture would be over in just a couple of minutes.
+
+So multiplication same deal. We're given we're given A of x B of x and we want to convert that into some C of x for all x which would it evaluates to the product of those two polynomials. And how do we do this? We can't just multiply corresponding A k's and B k's. In fact if you take a big thing like this and you multiply it by another big thing like this. So here I tried to do it for you.
+
+So the the constant term is just the product. That's easy. The constants. But then if I take the next two cross products I get linear term linear terms. So it's going to be A 1 B naught plus A naught B 1 times x and then there's a quadratic term. So there's three things times x squared and that's when I got tired.
+
+I'm going to switch to summation notation. C k is the sum of j equals zero to k A j B k minus j. That's the general form because A j came from an x to the j term B k minus j came from x to the k minus j term. When you multiply those together you get x to the k. So this is the coefficient of x to the k. So that's what we'd like to compute.
+
+Given A and B we want to compute this polynomial C. How long does it take? We have to do this for all k. So to compute the k term takes order k time. So the total time is n squared. So that's not good for this lecture.
+
+We want to do better. In fact today we will achieve n log n. That's our goal. Polynomial multiplication in n log n. Why do we care about polynomial multiplication? Because it's equivalent to another operation which we use all the time in digital signal processing, image editing, all sorts of things which is convolution.
+
+Convolution is usually thought of as an operation on vectors. So remember our vector notation where we're just thinking about coefficients. X's are kind of irrelevant. We're just thinking about a sequence of real numbers. So maybe that sequence of real numbers for A represents waveform. Maybe this is the audio that I'm speaking of.
+
+And then I take some other waveform. Here I have a Gaussian function shown e to the minus x squared. And I want to take for all possible shifts of my Gaussian, I want to compute the dot product between the audio wavelength and the Gaussian distribution. That's some kind of smoothing function if I wanted to clean up noise or something like that. You can do the same thing on a two dimensional image. It's a little harder to think about.
+
+But you can map a two-dimensional image to a one-dimensional vector and you have a two-dimensional Gaussian. If you ever do Gaussian blur in Photoshop, this is what you're doing, a convolution. And it's used to pretend that your lens is out of focus when you do that. It's done in audio processing. It's all sorts of things. So formally, you're given two vectors and you want to take all possible shifts of one vector and take the dot product with the other one.
+
+Dot product, same thing as inner product, which just means multiply corresponding positions and add them up. If you ignore this minus sign, that's exactly what this is doing. This is taking a j versus b k, pretend it's plus j. So that's the b j vector, but with all possible shifts k. We compute this for all k. That's really cool.
+
+We're going to compute it in n log n time. All different n shifts of b will take the dot product with a. It's kind of magical because it looks like you're doing n squared work, but we're going to do it in n log n time. The only issue is we have to reverse b. Then the minus sign turns into a plus sign and there's some boundary conditions, but it's basically the same. If we can solve polynomial multiplication, we can solve convolution.
+
+Cool. So that's why we care about multiplication. So how are we going to solve this? What I'd like to do is talk about alternate representations of polynomials. That's the next thing here. We just did operations.
+
+Let's talk about different representations. So we talked about one representation. It's one way to represent polynomial, but it's not the only one. You probably know others. So on the one hand, we have representation a is a coefficient vector. So you can write down the a i's.
+
+That's just one way to represent a polynomial. Can you think of another way? I have two ways in mind. Okay. A bunch of samples, a bunch of points on the polynomial. So like xk, yk for k on 0, 1, 2, n minus 1.
+
+And if we are called that a of xk equals yk and we're called that all the xk's are distinct, then this uniquely determines the polynomial. You have a degree n minus 1 polynomial and you have n samples. There's only one polynomial that passes through all of those points. It's a it's a consequence of the fundamental theorem of algebra that gives you uniqueness. Okay. So there's another answer.
+
+Samples, coefficients, anything else? Okay. So roots is the other answer I was looking for, but it's not going to be so good algorithmically as we'll see. So I can give you a sequence of roots. This is the fundamental theorem of algebra that every polynomial is uniquely defined by a set of roots. If you allow roots with multiplicity, then every polynomial of degree n has exactly n roots.
+
+So this would be some sequence of r1 up to rn minus 1 and the polynomial would be given as you actually need a constant multiplier, but x minus r naught x minus r1, that would be polynomial. The trouble with roots is that if I give you a coefficient vector and I want to compute the roots, not only is that hard to do, it's impossible to do in our model. If you're only allowed to add, subtract, multiply, divide, take square roots, take kth roots, there's no way to solve a polynomial degree, a polynomial of degree five or larger. There's the quadratic formula, cubic formula, quartic formula, but there's no quintic formula. So going from coefficient vector to roots takes infinite time. So it's not so good.
+
+And in particular, if we think about our operations, addition becomes really difficult. Multiplication is easy if I have two polynomials represented as a sequence of roots, I just want to multiply them. That's just concatenating the vectors, taking union the vectors of their root lists. So that's cool. I guess we're just multiplying the C's, I guess. But addition is really hard because addition is fundamentally about coefficient vectors.
+
+And then once you go there, you can go from roots to coefficient vectors and add them up. But then there's no relation between the roots of the sum of the polynomials versus the roots of the original. I don't know for sure that it's impossible. It's definitely very, very hard, probably impossible. Let's look at a little table. Each of these representations has some advantages and a disadvantage in terms of these three operations.
+
+So on the one hand, we have the algorithms we care about, evaluation, addition, and multiplication. And on the other axis, we have our representations, which are the coefficient vectors, roots, and samples. You'll see why I chose this order in a moment. It makes for a nice matrix. We've talked about almost every cell in this matrix, but let me just summarize here. We started out just thinking about coefficient vector and evaluation was linear time.
+
+Addition was linear time. Multiplication so far was quadratic, although our goal is to make it analog in. For roots, I just said multiplication is easy. That's linear time. Addition, really hard, like infinite time. And evaluation, I guess that's linear time.
+
+In fact, the way it's written, you only have a linear number of subtraction and multiplication. So it's pretty easy to evaluate. And then sample vectors, we haven't talked much about that. The idea is, suppose you're given two polynomials with the same XKs, we're going to fix XKs. All we need is that they're distinct. So XK could equal K, for example, just a bunch of integers.
+
+And then we're told what polynomial A evaluates to at every XK. And then we're told what polynomial B evaluates to at every XK. So we're given some YKs, some ZKs, and then we want to compute, say, the sum or the product of those two vectors. What would we do? Just add or multiply the corresponding YK and ZK, because if we're told we want C of X to equal A of X times B of X or C of X to equal A of X plus B of X for all X, well, now we know what X is we care about, right? We just do it at the XKs.
+
+That's what we're told for A and B. And so to compute C of XK is just the sum or the product of YK and ZK. So multiplication is really easy in the sample view. And this is why we're going to use this view. So we're also going to use the coefficients view, because as we'll see, there's a problem. Addition is easy, multiplication is easy, evaluation is annoying.
+
+I can evaluate A of X at XK for any K, but I can't evaluate it at some arbitrary value of X. That's annoying. I'm told at these finite sample positions, but now I have to somehow interpolate. This is called polynomial interpolation. It's studied in numerical analysis and so on. You can do it, but it takes quadratic time in general.
+
+The best known algorithms are quadratic. So these three things are bad. So no representation is perfect. What we'd like is to get the best... Now, roots can be hard to work on because converting, enter, roots is impossible in an arithmetic model. So we're going to focus on coefficients column and samples column.
+
+We kind of like to take the min of those two columns. We won't quite get that. What we'll get is an algorithm for converting between these two representations in and log in time. It's not quite linear, but close. And once we can do that, if we want to multiply two things in the coefficient land, we can convert to sample land, do it in linear time, and then convert back. So that's the magical transformation we are going to cover.
+
+And it's called fast Fourier transfer. Fast Fourier transform is the algorithm. Discrete Fourier transform is that transformation mathematically. So the whole name of the game is converting from coefficient representation to samples or vice versa. Turns out they're almost the same, though that won't be obvious for quite a while until the end of class. All right.
+
+So because we have n samples to do, each one will cost linear time. Remember to evaluate a polynomial takes linear time. If you want to think of it as a matrix, let's look at this matrix. Then we get a big matrix. So we're given the x i's and we just want to evaluate a given polynomial whose coefficients are given by a not a 1, a 2, and minus 1. Our goal is to compute the y i's, y not y 1, y 2, to y n minus 1.
+
+And if you know a matrix vector product, you take this row with that column, right? You take the dot product that multiplies corresponding entries. You get y, y not. That's the definition of the polynomial evaluation. This is called bandermonde matrix, right? We'll call it v.
+
+In general, if we look at v j k, you may notice I'm not using the letter i, we'll get to y in a moment. v j k, row j column j, that's going to be x sub j to the power of k. That's the bandermonde matrix. We can compute it in quadratic time. It has quadratic entries. We can use the trick we suggested earlier, compute each term from the previous one by multiplying it by x j. And then we want to compute this matrix vector product.
+
+And you can clearly do that in quadratic time. I'm just computing each thing correspondingly. And that's the best thing you can do without any further assumption. So this takes, if I want to compute the product, that's the coefficients to sample's problem. This is the same thing as computing v times the a vector. So this is a matrix vector multiplication, which takes n squared time.
+
+On the other hand, so that's a problem because we're trying to beat quadratic multiplication. So if we spend quadratic time to convert over here, it doesn't matter if this is linear time. There are two problems. One is that the conversion costs too much. The other is we don't know yet how to convert backwards. But this matrix field gives us also the reverse transformation.
+
+If we want to convert samples to coefficients, this is the best notation I know is from Matlab. I don't know if you guys know Matlab. For that, it's v backslash a. But usually in linear algebra, you see you have some matrix v times some unknown vector. Usually it's called x. Here it's called a.
+
+And you know the right hand side, you want to solve for a. How do you do it? Okay, so we could also just do v inverse times a, right, from a numerical analysis standpoint, this is very bad. Don't worry about that for now. We're going to get a better algorithm today. Anyway, it doesn't it doesn't involve matrices at all.
+
+But the nice thing is if computing the inverse, that takes n cubed time, but you only have to do it once. So if you have to do this many times, you can do this product in n squared time. You just have to maintain that v inverse once and for all. Okay. So we've got quadratic algorithms to go back and forth between these representations that at least tells us it's doable. But we of course need better than quadratic to improve on our multiplication algorithm.
+
+So that's what we're going to do in general. We can't do any better. But we have one freedom, which is we have said nothing about the x case. We can choose them to be whatever we want them to be. I keep saying xk equals k. That seems fine.
+
+It's actually really bad choice for a reason that we'll get to. But there is a choice where magically this transformation becomes easy. And you can do it in n log n time. Before we get there, I want to give you some motivation for how this could possibly work. And as you might expect, even just from that n log n running time, we're going to be using divide and conquer. So let's just think about how divide and conquer could work.
+
+I'm going to show you an idea and then we'll figure out how that idea could possibly work. It doesn't work at the moment, but we will be able to choose the xk so that it does work. So let's say goal, okay, let's say what we want to do is compute this v times a. I'm going to convert. Think of that back into polynomial land. So our goal is to compute a of x for all x in some set x.
+
+This is taking a bunch of samples. Set x is just a set of the xk's. But I'm going to change that set in a moment using recursion. So the input to this algorithm is a polynomial a of x. And it's a set capital X of positions that I'd like to evaluate that polynomial at. This is clearly more general than the problem we're trying to solve.
+
+And I'm going to solve it with divide and conquer. In divide and conquer, there are three steps. Divide, conquer, and combine. So let's start with divide here. So here's the big idea. I would say that there are two natural ways to divide a vector.
+
+One is in the middle. That's what we've always seen with merge sort and convex hole from last time. But there's another way which will work better here, which is the even entries and odd entries. So I'm going to divide into even and odd coefficients. One of them is called a sub even of x. That's a polynomial.
+
+It's going to have half the degree. So it's going to be some from k equals zero to n over two minus one of a to k x to the k. So really what I want, which is easier to write is in the vector notation, I want all the even entries. I won't try to figure out what the last one is, but it's roughly n over two-ish. So we just write that. You can go a little bit extra.
+
+It's fine if you define a sub n to be zero and a sub n plus one to be zero and all the other things to be zero, those terms will disappear. So the key thing here is I'm taking the even entries, but I don't have two k up there. Up here, whatever, up there here on the slide. We have an x to the zero term and we have an x to the one term and an x to the two term. So there's a difference between x to the k's and the sub two k. But I mean, just think about it in vector form.
+
+Don't worry about the algebra for now. We're going to have to worry about it in a second. But intuitively, what I want to do is extract from the vector all of the AIs, these two vectors, the odd coefficients in order and the even coefficients in order. But I'm not, or, but I, sorry, I am going to need the algebraic form in a moment for the combined step. It should be two k plus one x to k. That's step one.
+
+Easy to do, linear time, of course. Let's jump ahead to step three. In order to compute A of x from, what I'd like to do is recursively compute A even of x and A odd of x for some values x. It's not going to be x and x. It's going to be some other set. Let's think about how I can compute A of x given some solutions to A even of x and A odd of x.
+
+So this is step three, combine. So I would like to call A of x and I want A even of something and A odd of something, right? There's something in there. You can obviously see it, but hopefully you can see the algebra behind this, right? x squared is not something, right? Why is it x squared? Because we have a mismatch here.
+
+We have a sub two k. We want x to the two k. And how would we do that? Well, we could put x squared to the two k and x squared to the k is the same thing as x to the two k. So magically this transforms into the even entries of A of x. That's half of them.
+
+We do the same things for the odd ones and we're almost there. Now we have a sub two k plus one times x to the two k, no plus one. So how can I add a plus one? We multiply by x, right? Take the whole thing, multiply by x, and then I get off the odd terms of A of x. I add those together.
+
+I get A of x. I mean, you could prove this more carefully, but that's just algebra to see that this is correct, right? Once you have this, it tells you what I need to do is to compute A even of x squared for all x and x. So that is four x and x. There's a loop for you now. So that's going to take a linear time.
+
+If I already know my values, I do one multiplication, one addition, and boom, I get A of x, right? So in the hunker step, I want to recursively compute. So we have A even of y and A odd of y for y and x squared. x squared is the set of all squares of all numbers in x. So I'm changing my set x. I started with a polynomial A and a set x recursively. I'm doing a different polynomial of half the degree, half the number of terms, but with a different set of the same size.
+
+I started with x, x squared has the same size as x, right? So let's try to figure out how fast or slow this algorithm is, but that isn't divide and conquer. That is going to be our golden ticket. It's pretty simple, but we're going to need to do another trick. So I'm going to write a recurrence. Now, this recurrence depends on two things.
+
+One is how many terms there, how many terms are there in A that we've been calling n? And how, and the other is how many numbers are there in x? How many different places do I have to evaluate my polynomial? Okay, so let's advance. Here we go. Okay, here we go.
+
+So we've got t of n and I always call it size of x. So divide and conquer goes hand in hand with recurrences. Generally, you've got the recursive part. So that's just how big are the sub problems. How many are there? There are two sub problems.
+
+They have half the size in terms of n, but they have the same size in terms of x. So all right, so two times, that's because there's two sub problems, each with size n over two and size x. Plus what goes next is however much it costs to the divide step. Plus however much it costs to do the combined step. So all the non recursive parts. So the divide step is just partitioning the vectors linear scan linear time.
+
+The combined step is what we talked about. It's a constant number of arithmetic operations for each x. So this cause order x time, this cause order n time. So in general, we get n plus x, right? So we have order x time and order n time. So we get n plus x.
+
+Now this is again, not a recurrent solvable by the master method, because it has two variables. So usually when you're faced with this sort of thing, you want to do a back of the envelope picture, draw a recursion tree. That's a good way to go. So at the root, now I know that initially x equals n. When I start out, I have n coefficients. I have n different positions and I want to evaluate them that I want to evaluate them at, because that's what I want to do to do this conversion from coefficients to samples.
+
+So at the root of the recursion tree, we just have n order n work to get started and to do the recursions. There are two recursive calls. Both have size n over two in terms of a, and they have the same x, which is also known as n in those two recursions. So in fact, the linear work here will be n and n, and we'll get n and n. x never goes down. So x always remains n, the original value of n. This is a bad recurrence.
+
+There are log n levels. So the good news is there are log n levels, right? Once we get down to a constant size, we can kind of stop. When there's only one coefficient, I know how to evaluate the polynomial with just a zero. That's easy. So down at the bottom at the last level, we would have height.
+
+So down at the last level is going to be a whole bunch of n's. So we would have height log n. How many n's would be down on our last level? It'd be two to log n, right? Also known as n. So we had, because we had log n levels, we had binary branching.
+
+So it's two to the number of levels, which is just n. So this is n squared. All this work is still n squared. Clearly, what we need to do is for x to get smaller or two. If x, in this recursion, this is the recursion I would like to have. If x became x over two here, that's the only change we'd need.
+
+Then n and x change in exactly the same way. So then we can just forget about x. It's going to be the same as n. Then we get two times n over two plus order n. And does that look familiar? It's our bread and butter recurrence, merge sort recurrence.
+
+That's n log n. That's what we need to do. Somehow, when we convert our set x to x squared, I want x to get smaller. Is that at all possible? Let's think about it. What's the base case?
+
+To keep things simple, let's say the base case when x equals one. I'll just let, let's say I want to compute my a at one. Keep it simple. What if I want two values in x? I'd like to have the feature that when I square all the values in x, so I want two values, but when I square them, I only have one value, solve for x. Negative one and one.
+
+That could work. What are negative one and one? They're square roots of one. Negative one squared is one and one squared is one. There's two square roots for every number. Two square roots, that's interesting.
+
+Two square roots for every number. That means if I just keep taking square roots, when I square them, it collapses by a factor of two. Let me define something. You're all anticipating what's going to happen. I'm going to say a collapsing set x or a set is collapsing if either the size of x squared is the size of x divided by two and recursively x squared is collapsing. I need this to work all the way down the recursion or I need a base case, which is just x equals one.
+
+There's a single item in x. I happen to start with x equals the item one. It didn't have to be one. It could have been seven. It couldn't be zero because zero, you wouldn't get two numbers. There's only one square root of zero.
+
+Okay, so I guess I lied a little bit. Other than zero, every number has exactly two square roots. What's the square root of negative one? It's i, right? Complex numbers. If I take the square root of these guys, I get i and negative i.
+
+Again, I get minus one and one. That's when x equals four. Turns out this is only going to work for powers of two, but hey, if n isn't a power of two, just round up to the next power of two. That only hurts me by a factor of two. Complex numbers. Every time I said real number in the past, pretend I said complex number.
+
+Everything I said is still true. Actually, the root thing is only true when you allow complex numbers. Some polynomials have complex roots, so pretend I said complex. We're going to need complex numbers. This is why. Because when we'd start taking square roots, we would immediately get complex numbers.
+
+Next would be x equals eight. Square root of i should be root two over two times one plus i. Then this one is just the square root of negative i is going to be root two over two times i. I'm sorry, times one minus. I'm sorry, i minus one. Then we have all of our guys, all of our same guys.
+
+Then I have a plus or minus in front of each of my square root i terms. How in the world could I remember this? Maybe I memorized it. No, didn't memorize it. It's actually really easy to figure this out if you know geometry. Let's do geometry now.
+
+You know complex numbers have two parts. The real part and the complex part. I'm going to draw what's called the complex plane where we draw the real part. I guess it's usually called the imaginary part on the y-axis. Every point in this plane is a complex number. And vice versa.
+
+The same thing. So what do we start with? We started with the number one. Number one is here. It has no imaginary part. So it's on the x-axis.
+
+This is the real line. And it's at position one, which I'm going to define to be right there. Next, then we've got negative one. That's over here. Then we've got i. That's here. i times or one times i, I guess.
+
+Then we've got negative i. That's here. Then we've got root two over two times i plus one. That's here. Root two over two. Root two over two by root two over two.
+
+What's the property of root two over two comma root two over two? It has distance one to the origin. So this is distance one. Interesting. And then I got the negative of that, which is over here. And a negative of that, then this point is negative two over two by root two over two.
+
+And then there's the negative of that. What property do all of these points have? Have you seen this before? This is unit circle. What's going on here is I took this number and I claimed it was the square root of i. Because it turns out if you take points on the unit circle in the complex plane, when you square a number, it's like doubling the angle relative to the x-axis.
+
+We have zero, which is our axis. And then we have a 45 degree. Then we have a 90 degrees. So when I square the 45 number, I get 90 degrees. And in general, we get something called, so these are called the nth roots of unity. Unity is just a fancy word for one.
+
+First, we computed the square roots of one. They were minus one and one. Then we computed the fourth roots of one. All of these numbers, if you take the fourth power, you get one. Then we computed the eighth roots of one. All of these numbers, if you take the eighth power, you get one again, right?
+
+So in general, nth roots of unity. We're going to assume n is a power of two, but this notion actually makes sense for any n. And then they're just uniformly spaced around the circle. And if you know some geometry and how it relates to trig, you know that a general point on the circle is cosine theta comma sine theta. X coordinate is cosine theta. Y coordinate is sine theta.
+
+This is also a funny notation for complex numbers. Not so funny. This is the geometric interpretation of cos theta plus i sine theta. And if I want them uniformly spaced around the circle, and I want to include the point one, also known as theta equals zero, because when theta equals zero, cos theta is one sine theta zero. So I want to say four theta equals zero. And then here I'm going to get fancy here. tau over n to tau over n up to n minus one over n times tau.
+
+What's tau? tau is two pi. This is a modern notation just over the last probably 10 years. So tau, clearly this is much nicer. tau over n not two pi over n. tau is a whole circle. This is one nth of a circle, two nths of a circle. Anyway, I didn't do n nths of a circle because that's also the same as zero. Now, why did I introduce this notation?
+
+Because there's this other thing called Euler's formula, which is that this equals e to the i theta, all of that. This is Euler's formula, e for Euler, another number two. And this is funny because it's complex, times theta is equal to cosine theta plus i sine theta. This is the relation between exponentials and trigonometry. That's a big thing that Euler did. It's really cool.
+
+So what? Because this lets us understand how squares work. Not squares, okay, like squares the operation, right? We're not talking about square of the shape, but squares the operation. You can draw on this picture for every number what is its squared. So we started with eight.
+
+I square them, I get four. I square them, I get two. I square them, I get one. That's how we constructed it. But you can see it works not only for this eight point set that we constructed sort of by hand, but it works for the nth roots of unity. As long as n is a power of two, the set of points will be collapsing.
+
+So if n is a power of two for some integer k, then nth roots of unity are collapsing. And that's what we want. Then our divide and conquer algorithm runs in n log n time because every time we square the set x, we reduce its size by a factor of two. We get t of n equals two times t of n over two plus n, plus order n. And that's order n log n. And so this whole thing we compute, in other words, we set xk to be e to the ik tau over n.
+
+Now, I guess I should say how to compute that, but let's just say that's given to you for free. It takes constant time to compute each roots of unity. In fact, again, we only need to do this once. And for each value of what we do at once for each value of n. So you can think of it as just being part of the algorithm. These are the xk's we use.
+
+I said xk could be anything we want as long as they're different. So I'm going to choose them to be n uniformly spaced points around the complex unit circle. And then magically our dividing conquer algorithm runs in n log n time. It's pretty cool. Intuitively, you think of real numbers. x squared, of course, has the same sides as x. But once you go to complex numbers, there's this nifty trick where you start with one nth of a circle and you'd uniformly space points after the first level of recursion.
+
+You only have to be dealing with n over two of those points, namely the even ones, also known as n over the two roots of unity. And after the next level of recursion is the n over fourth, n over fourth roots of unity, and so on. So this recursion is well defined when you have a vector of size n. You just have to deal with the nth roots of unity and you're happy. This is fast Fourier transform. The algorithm with these xk's is fft.
+
+This is the algorithm we were aiming to find. Fast Fourier transform is the divide and conquer algorithm for the discrete Fourier transform, which is the corresponding mathematical transformation. So dft is the thing that we wanted to compute, which is basically the product v times a. Remember, v was the Van der Maat matrix and it depended on all these xk's. And we're going to set xk to be this e to the ik tau over n. So if you remember, the vjk here was xj to the k's power.
+
+So this just becomes e to the ik tau over n. That's a matrix. If you take that matrix times a vector, this is called a discrete Fourier transform of the vector. And fft is a way to compute it in n log n time. You just run a divide and conquer algorithm for those xk's and it will work in n log n time. Very cool.
+
+If you remember back to the beginning, what we needed is a way this converts a coefficient vector into a sample vector. Then we can multiply the polynomials and then we need to transform the sample vector that results back into a coefficient vector. So we're only half done. We're only half done. Luckily, the other half is almost identical to this half. So let's do that next.
+
+So we've got our divide and conquer algorithm. What we need now, let me give you the polynomial multiplication algorithm. Let's call this fast polynomial multiplication, fast meaning and log n. Let's say we're given two polynomials a and b represented in coefficient form. What we need is, I'll call it a star, which is the result of running fft on a. It's the discrete Fourier transform of a. b star do the same thing.
+
+So we know what this means is convert a from a coefficient vector into a sample vector, convert b from a coefficient vector into a sample vector. Now I have the samples of a star at the nth roots of unity and I have the samples of b at the exact same points, the nth roots of unity. So I can compute c star, the transform version, the dft of c is just the c star k equals a star k times b star k. This is the multiplication algorithm for sample vectors. We started with that. That's linear time.
+
+And then the missing piece, I need to recompute c, which is the inverse fast Fourier transform of c star. So this is the missing link, so to speak. We need to be able to go backwards in this transformation. Good news is the algorithm is not going to change. What we're computing is not going to change. All that's going to change are the x k's.
+
+Why? Because remember from the top right now, we know how to compute v times a, but what we now need to compute is the inverse times a. So the only question is what is the inverse? Our matrix has a super special structure. It's symmetric, lots of points on a circle. Maybe the inverse has a nice structure.
+
+And it does. The claim is the inverse is v complex conjugate divided by n. What is complex conjugate for a geometry? It's, what do I say, geometry. It's reflection through the x-axis. For an algebraic person, it's a plus i b.
+
+The complex conjugate is a minus i b. So just apply that to every entry in the matrix and then divide all the entries by n. You get the inverse. Awesome. Very cool because what this tells us is we run exactly the same algorithm and do exactly the same transformation. If we want to do the inverse, we can actually just use v, but with a different choice of x k.
+
+Namely, for the inverse, we'll call it x k inverse. We'll just take the complex conjugate of e to the i j k tau over n, which turns out to be e to the minus i k tau over n. I'm using a fact here, which is that the complex conjugate of that number is actually, you just, you just put a minus sign there. And why does that hold? Because geometry, theta is usually measuring the counterclockwise angle from the x-axis. If you take the complex conjugate, you go from the top half of the circle to the bottom half of the circle, the reflection on the x-axis.
+
+That's the same thing if you measure theta as a clockwise angle from the x-axis. That's the same thing as negating the angle. So that's just a little geometry. You can prove it algebraically, although I don't know how to offhand. So if I want to take some angle and then flip it through the x-axis, it's the same as negating the angle. So the complex conjugate of this number is the same thing with a minus sign.
+
+I use the x-case and then I apply the transform. I take, I take that thing. I get not quite the inverse, but I end up getting n, I get, I end up getting n, the inverse. I multiply that by my a star. That's going to give me n times n. So then I just take that vector and divide by n.
+
+Boom. I've got the inverse transform. So this is how you do inverse fast for your transform. You just flip the sign of the exponent in the x-case, then you do the same matrix vector product, and then you divide by n. And then you've done the inverse. So that's how you do, if you believe this claim, that's how you do this last step.
+
+So what remains is to prove this claim. What this claim says is that v prime is equal to n times the inverse. So I apply the same f of t algorithm, but with v prime instead of v, then I get not quite the product I want, but just n times the product I want. Divide every turn by n and we get the inverse. This is the cool thing about complex numbers. Here we get another cool thing, but we have to prove this claim.
+
+So let's do a little bit of algebra. No, no pain, no gain. So let's look at p, the product of v and v complex conjugate, what I was calling v prime earlier. I claim that this thing is n times the identity matrix with ones down the diagonal and zeros everywhere else. So let's look at this product. In general, let's look at the j-case item in the product.
+
+This is going to come from row j of v dot product was column k of the complex conjugate. Now matrices here are symmetrical, symmetric. So actually rows and columns are the same, but that's the general definition of the cell and the product of two matrices. So we're going to write it out. As a summation, we have from m equals zero. It's kind of hard not to use i for summations.
+
+It's the only class I have to do this in because i's already taken. So we'll use m because i is a complex number today. So we have e to the i tau j m over n times e to the minus i tau mk k over n. I don't know why I ever changed the order. I put the tau, okay, yeah. So it's the same thing.
+
+This is just for every position m in the cell and corresponding position, I'm sorry, m in the row, corresponding position m in the column. I have jm and I have mk. Again, order doesn't matter. It's symmetric. And I put a minus sign here because this is the complex conjugate. So now we do some algebra.
+
+They share a lot, right? They share i, they share m, and they share divided by n. So this is some m equals zero and minus one e. Oh, they also share tau, tau m over n times j minus k. So it depends how tau and k relate, of course, right? If, or yeah.
+
+So if j equals k, that's also known as something on the diagonal. I want the matrix n, n, n, n, wait, n, n, n, n, n, n, zero, zero. So j equals k. That's the diagonal. That's where I want to get n. And indeed, if j equals k, this becomes zero.
+
+So all of those would become zero. e to the zero is one. And I'm summing up one n times I get n. Cool. So that's one case. This is if this is if n, this is n if j equals k. And somehow I claim that everywhere else I get zeros of my matrix, right?
+
+So let's prove that. So if j and k are fixed, m is changing in the sum. So I want to write this as sum m equals zero to n minus one e to the i tau j minus k over m times m. In other words, this thing raised to the nth power. What is this series? I've seen this before.
+
+It's one word. Geometric, geometric, what do I say? This is a geometric series. And how do you solve a geometric series with a finite term? We think of this at listening of this as z to the m. Okay, do you know the formula?
+
+If you have sum of z to the k, k equals zero to n minus one. That's that. So we just plug that in and we get e to the i tau j minus k over n to the nth power minus one over e to the i. Actually, the denominator doesn't really matter, because this is supposed to be zero. So it's all about the numerator, but same thing, minus one. The n cancels with the n, j minus k is an integer, not equal to zero.
+
+So we have e to the i tau to an integer power. What's e to the i tau one? One minus one is zero. So we get zero. Very satisfying. So that proves our claim.
+
+We prove that on the diagonal, we get n because we had n copies of one. Off the diagonal, we get zero, like this. Therefore, v complex conjugate times n is the v inverse. Therefore, this algorithm actually computes the inverse fast for your transform. And so that's it for algorithms today, but let me tell you about some applications of this. You've probably taken other classes that use application of the fast for your transform.
+
+So I'll just summarize. If you've ever edited audio, you probably did it unless you're just pasting audio clips together. You probably did it in what's called frequency space. So you know that as I talked about in the beginning, when we're measuring where the membrane on my microphone goes over time, that is in the time domain for every time we sample where physically this thing is. If you apply, I think the way I defined it is the inverse fast for your transform. Usually it's called Fourier transform to that time domain vector.
+
+You get a new vector. Now it's a complex vector. You may have started with real numbers. You get complex numbers. So for every position in the vector, what it corresponds to the x axis is no longer time. Now it's frequency.
+
+For every frequency you're measuring, essentially you're viewing the vector, the waveform as a bunch of trigonometric functions. Say sine of something times theta. If you look at one of the entries in the vector, and it's a complex number, if you compute the magnitude of the complex number, the length of the vector of the length of that two coordinate vector, that's how much stuff of frequency you have. And then the angle of the vector is 2D is how that trigonometric function shifted in time. So if you take a pure note, like if I was playing a bell and it's exactly C major, it looks really wavy. It's actually a nice perfect sine curve.
+
+Some offset depending on when I hit it, right? Then if you apply the Fourier transform, what you get is zeros everywhere except for the one frequency that's appearing. That's where you get the one and every row to get zero. Well, I possibly rotate depending on the phase, right? And you can take any audio stream converted by a Fourier transform, do manipulations there. For example, you've probably heard of a high pass filters that remove all the high frequencies or low pass filters remove all the low frequencies.
+
+You just convert to the space and zero out the parts that you want. And then you convert back using this inverse Fourier transform. If you used Adobe Audition or Audacity, they can do all these things. There are tons of contexts where converting to Fourier space makes life easy. And in general, if you have any time based signal, you should always think of what you get with FFT when you transform to frequency based signal. And you can do lots of cool things you couldn't do otherwise.
+
+And it only takes n log n time. People do it in hardware. People use it everywhere. Your noise cancelling headphones use it MP3 stuff uses it. It's a really cool algorithm. So that's that's that for today.

@@ -1,0 +1,173 @@
+Okay. Welcome to our second and last lecture on what to do when you have an MPR problem. So two lectures ago, we saw how to prove a problem is NP hard last lecture we saw. If you want polynomial time, but you're willing to put up with a non perfect solution, but you want to get within some factor of the best solution. That's approximation algorithms. Today, we're going to do a different thing called fixed parameter algorithms.
+
+These are going to run an exponential time in the worst case, but not so bad in a certain case, which we'll get to. In general, the theme of these this last lecture is that we'd really like to solve hard problems. We like to solve them fast meaning polynomial time. And we would like to we want correct solutions, right? We want to get to do an exact solution. We'd love to solve NP hard problems in polynomial time exactly, but that's not possible unless P equals NP.
+
+So pick any two here. That's the general idea here in algorithms class, we have hard fast exact pick any two. Most of this class is about fast and exact polynomial time algorithms give you exact things. That's the class P. Last lecture was about hard problems. We drop exactness.
+
+We still want polynomial time. We still want to solve hard problems. So this is approximation algorithms. And what we're doing today is the other combination. We want exact, but we're going to sacrifice how fast things are. They're not going to be polynomial time in a strict sense, but going to be somewhere between polynomial and exponential.
+
+This is an area called F.P.T. for fixed parameter attractability. So what's this parameter business? In general, the idea is that we want an exact solution to an NP hard problem, which means it has to take exponential time in the worst case, but we want to confine the exponential dependence to something called a parameter. We actually use parameters all the time. For example, on a graph, there's two typical parameters you think about, the number of vertices and the number of edges. If you're sorting an array, the usual parameter you think about is the size of the array.
+
+That's all I mean by that. A parameter in general is just some kind of size or complexity measure. So in general, a parameter is going to be, we're going to call it K of X should be non-negative integer and X is an input. So you're thinking about some problem like a problem we'll be looking at today is vertex cover, which we saw last lecture. Vertex cover, you're given a graph and based on that graph, we're going to define some function of that graph. So this is the input to the problem.
+
+And K is just going to be some non-negative integer, which is a function of that input, just some measure of how tough your problem is. And what we would like is a running time that's exponential in K, but polynomial in everything else, polynomial in the size of the problem in V and E. So that's a general goal, polynomial in the size, which we usually call N, an exponential in the parameter, which I'm just going to call K. In general, you could consider more parameters, but we're just going to think of two, the overall size of the problem and some particular parameter that we look at called K. So if you can achieve this, which we'll call fixed parameter tractability, I'll define it formally in a little bit because there's more than one way you might think of defining it. Some are right, some are wrong, less right.
+
+If you can achieve this, what you get is an exact algorithm for your problem that runs really fast provided K is small. So this is sort of a way of saying, well, you know, the problem is NP hard in general, but as long as this measure K is really small, I'm still going to be able to solve it really fast. So it's a way of characterizing a wide family of a big subset of the problem that you can solve. You know that in general, you're going to need exponential time, but this gives you a measure of how hard your input is. May not be the only measure, may not be the best one in any sense, but if you can define a parameter and you know that in your practical scenarios, that parameter will be small, then you're golden. Then you can actually solve the problem in a reasonable amount of time and get an exact solution.
+
+No approximation here. So that's the idea. So that was parameter. We're also going to define a parameterized problem. This is just a problem plus a parameter. Okay.
+
+So we already have some notions of problems. We can take any problem that we've looked at before like vertex cover. And if we just define some parameter, then we get a parameterized problem when we put those things together. Okay. So let's do that for vertex cover. So I'm going to define K vertex cover.
+
+This is almost the same as vertex cover. It just had the K in front, but the K means that it's a parameterized problem instead of just a general problem. So as in vertex cover, we're given a graph G and I'm going to think about the decision version of vertex cover. So we're given a non-negative integer K and we want to know, is there a vertex cover of size K, say less than or equal to K, is there a vertex cover? Or a vertex cover is a set of vertices that cover all the edges. And we want the size of S to be less than or equal to K.
+
+So for every edge, we need to choose one of the two endpoints. We want the total number of chosen vertices to be at most K. And so that's a regular decision problem. But for parameterized problem, we also want to define a parameter function. And that parameter function K, right? That's going to be our parameter.
+
+So let's do some algorithms. I guess the first note is that K can actually be small. Nice example is a star graph. So you have the vertices, but what's the smallest vertex cover here? One, right? You choose the guy in the center that covers all the edges.
+
+So it can be that K is much smaller than V. And our goal here is that we're going to get some polynomial dependence in the size of the graph, but we're going to get an exponential dependence on K. Now there are many different ways you could think of exponential dependence, but let's start with what would be the really obvious brute force solution to vertex cover. I want exact. I'm not going to be clever. What's the obvious algorithm to solve this?
+
+How about try any combination of K vertices? See if it's a vertex cover. How many combinations of K vertices are there? And choose K, all right? So I guess so V choose K subsets of K vertices K. So try all and choose K, right?
+
+So for each test, each of these choices for coverage. So that just means we loop over for every vertex in our set. We mark all of the incident edges as covered. And then we go through all edges and see whether everyone got marked covered. If not, we reset and try the next subset. This is not a smart dynamic programming.
+
+You just guess what the subset is and see if it covers. This is how you would prove that this problem is in NP, right? But now we're actually making it an exponential algorithm. So what would be the running time of this algorithm then? E times V to the K, right? That's obviously exponential then.
+
+And in a certain sense, the dependence on E and V is in the bottom, which is good. And the K is in the exponent, which makes sense. So this is not surprising. We also don't think of it as good, right? We've defined this to be bad. In general, we think of a running time like N to the F of K, where N is sort of the overall problem size here.
+
+Here N is basically V plus E, and that's the overall input size for a graph. If we have a running time where the exponent of N depends on K in a non-trivial way, we think of that as a bad running time. This is a slow algorithm. It's slow because even when K equals 2, if you have a large graph, this is probably not something you want to run. Definitely when K is 10, you're completely hosed. This is a very impractical, right?
+
+In the formal sense in which it is impractical, is that the exponent in N depends on K. The whole point is to think of the parameter as being fixed like a constant. Now, if the parameter is fixed, if you think of it as at most 100, then indeed this will be at most N to the 101 or something. It is polynomial for any fixed K. The catch is that the exponent of the polynomial depends on K. As you increase K, as you increase your bound on K, the exponent increases.
+
+I can't say this is an N squared algorithm for any fixed K. Exponent depends on K. That's the bad case. The good case we're going to define is that the exponent doesn't depend on K. I'm going to define, let's say a parameterized problem is a fixed parameter tractable, which given how many letters that is, we're going to abbreviate that to FpT. If it can be solved in F of K times polynomial in N, that's what we're going for, right?
+
+Let's try to solve vertex cover in this same kind of time. I claim to you vertex cover is fixed parameter tractable. There is such an algorithm. The algorithm is going to look very familiar, very similar to the two approximation algorithm that we had last class for vertex cover. I'm going to give it a different name, which is bounded search tree. This algorithm is going to feel like dynamic programming or we're going to use guessing.
+
+In general, exponential algorithms naturally is guessing. But here, when I guess, I have to try all the possibilities. We're going to be a little bit more sophisticated in how we try all the possibilities that actually exploits the properties of vertex cover. First line is just like the two approximation algorithm. Look at any edge in the graph from U to V. What do I know about those edges?
+
+One of those vertices has to be in the cover. Either U or V or both are in S for that edge to be covered. Now, for the two approximation, we just put those both in here. We can't afford to do that because we want an exact solution. We'll try both options. Here, we don't know which one belongs.
+
+Let's guess. We know either U is in S or V is in S. Don't know which. So we're going to guess. Which means we need to try both options. We're going to try putting U in and then we're going to try putting V in.
+
+So let's see what happens when we try that. In the first guess, let's say we put U in S. Well, if we put U in S, that means we cover all of the edges incident to U. So I'd like to use recursion. I'd like to simplify my problem, get another vertex cover instance. So in order to do that, I'm just going to delete U and all of its incident edges.
+
+We do the similar thing in the approximation algorithm, but for U and V simultaneously. So delete U as incident edges. Now, we have a vertex cover. There's one other thing. There's a new graph we have, but we also need to update K because we just used one of those. We just added something to S, right?
+
+And then we deleted that from the graph, which means in our new graph, effectively K has gone down by one. Okay. So we'll say decrement K. Now I have a new instance. I have a new graph and a different value of K. Recurse this algorithm.
+
+I'll call the new graph G prime and the integer K prime. K prime equals K minus one. And then the second case is do the same thing for V. I won't write the code. It's exactly the same, but I delete V and its incident edges. I still decrement K by one and I recurse.
+
+And then I just return the, yeah, of these two answers, right? So if the first one finds a solution, great. I found a solution to the overall problem. The other one finds a solution, great. Maybe both return yes. It doesn't matter in general.
+
+I just take the inclusive or of those, yeah, to those two Boolean values. That gives me an overall yes, no answer to K vertex cover. So next question is what the running time is, but you can think of it as a dynamic program. It's just here we recurse. We don't bother memoizing because in general, memoization will never help us here. As you may have even thought of algorithms like this in the dynamic programming world.
+
+And we just say, well, that's not good enough because in dynamic programming, we want polynomial time. This is like a dynamic program, but the running time is exponential. It turns out it will be fixed parameter tractable. That's the good news, K. So think about the running time. What if we look at the recursion tree, right?
+
+This is a divide and conquer algorithm in a very weak sense. We start up at the top at UV with a problem of size N and a parameter K. We make two recursive calls, okay? We deleted a vertex and maybe some edges. So let's say we have a new problem of size like N minus one. But what really saves us is that K went down by one.
+
+And we have two recursive calls. Each of them, yeah, K is one smaller, okay? And then each of those has two recursive calls. I don't really know what happens to N. It probably doesn't get that much smaller, but K goes down by another one. So how much time am I spending in each of these notes?
+
+How much work am I doing? Non-recursive work am I doing in this algorithm? Think about that for a sec. Certainly at most order E, right? Probably at most order V because there's only at most V instant edges to each vertex. Lending your time though.
+
+Doesn't really matter how careful we are, but I will say each of these notes we spend at most, let's say order V time. It happened that V went down by one, as you can see at these levels, but certainly an upper bound is the original V, okay? In each of these notes, we spend at most the original V. When was this recursion stop? I didn't write a base case. Help me out here.
+
+What's a good base case for this algorithm? Think about that. When K equals zero, check if there are any edges, right? When K equals zero, I can't put anything into my vertex cover. So if there are any edges, they're not going to be covered. That's bad news, okay?
+
+So we have base case K equals zero, or let's say return whether size of E is zero or not. If it's not zero, sorry, whether it equals zero, if it equals zero, then the answer is yes. There's a vertex cover. I can cover all of those zero edges using zero vertices. But when E does not equal zero, there's no way I can cover that non-zero number of edges using zero vertices in my vertex cover. Okay, so that's the base case, which means this recursion keeps going until we get down to K equals zero.
+
+We start at K, we end up with zero. So the number of levels here is K, okay? The height of this tree, this recursion tree is K. So how many nodes are there in this tree? Two to the K, right? So total running time is V times two to the K.
+
+Hey, that's exactly what I wanted, right? I got a function of K, namely two to the K exponential, which makes sense, and I got a polynomial in N. The exponent is one, V is at most N, N is V plus E. Wow, big improvement, right? This seems equally simple of an algorithm as the previous one, but it actually runs a lot faster, okay? Also, from a theoretical perspective, this works even up to K equals log N.
+
+If K equals log N, this will be N squared. That's nice, right? K equals to log N, it's N cubed. So it grows, but we can handle K equals order log N, and this will still be polynomial. In general, with fixed parameter algorithms, it's not always gonna be up to log N. It's gonna be whatever the inverse of F of K is.
+
+That's where we can still be polynomial. So that's nice. I consider this a good running time, good in the sense that it follows that definition of fixed parameter tractable. So bounded search tree algorithm is good. Brute force algorithm, not as good. In this case, bounded search tree is a general technique.
+
+You can use it for lots of problems. We're gonna see another technique now called kernelization. So kernelization, if I have a giant graph, and I'm given some number K, and I want to find a vertex cover, maybe the first thing I do is to simplify my graph. Maybe there's some parts that are really easy to solve. I should throw those away first, and that will make my problem smaller. So if I'm gonna have an exponential running time, presumably, I wanna make the problem as small as I can.
+
+The deal with one of these algorithms, well, I guess I should say, we wanna make the problem as small as we can and then deal with pieces of them, right? Deal with one of the algorithms. So we're gonna do that. First, I'm gonna tell you about it generically, and then we'll do it for vertex cover. So first, let me give you a definition of what we'd like out of this pre-processing procedure. It's gonna be called a kernelization procedure.
+
+Kernelization algorithm is a polynomial time algorithm. So head back to polynomial time land. You can think of it as a reduction, but with NP hardness, we reduce from one problem A to another problem B. Here, we're gonna reduce from the problem A to the same problem A. It's a self-reduction, if you will, but the input to the problem is gonna get smaller. So we're gonna convert an input.
+
+So this is for a parameterized problem. So an input consists of some regular input X and a parameter K, and we want to convert it into an equivalent small input X prime K prime to the same problem, okay? The problem is fixed, say vertex cover. So we're given an arbitrary input. This would be a graph and a number K, and we wanna convert it into an equivalent small input, which is another graph G prime and another parameter K prime. So equivalent here means that the answer is gonna be the same, and I want the answer to the problem.
+
+Let's say answer of X comma K to be equal to the answer to X prime and K prime. Again, same problem, but different input here. I'm trying to be a little generic. It could be, we're gonna think here about decision problems, but this makes sense even for a non-decision problem. Whatever the answer is here, it should be the exact same as somewhere else over here, because I want an exact solution. I wanna solve exactly the problem.
+
+I wanna compute this answer exactly correctly. So if I can reduce it to some X prime K prime with the same answer, well, now I can just solve X prime K prime. So that's good, right? Now, what does small mean? We need to define that. Let's not go there yet.
+
+We need to define that. Small means that the size of X prime, which you might call N prime, should be at most some function of K. So this is interesting. So we started with probably a giant problem, exercise N, right? And we have a parameter K, which we presume is relatively small, and we convert it into a new input X prime. That's very small.
+
+It's size is a function of K, no more dependencies on N. N has disappeared for the problem. So we start with something of size N, we produce something the size as a function of K, and then, okay, there's some other parameter K prime. It doesn't matter much what it is. It's going to also be a function of K. So we started with something of size N, we produced something of size K in polynomial time.
+
+Wow, right? And the intuition is that the hardness of the problem is just from this thing of size K, but there's no thing of size K, or at least we haven't found it yet, right? The K is the size of the vertex cover we're looking for, but we don't know where that is. It's hiding somewhere, but somehow, magically, this kernelization procedure produces a new problem that's only a little bit bigger than K. Okay, some function of K. The problem is FBT, if and only if it has a kernelization.
+
+This is crazy, okay? I keep introducing stronger and stronger notations of good. They all turn out to be the same. That, again, gives you a sense of robustness of this definition and why this is a natural thing to study. So this sounds crazy. How could I even put all the easy work at the beginning in this polynomial time algorithm and then in the end produce something that's a reasonable size?
+
+This proof is going to be trivial. I think everything in this field is either really hard or relatively trivial. The easy direction, of course, is this way first. I didn't, yeah, okay. If I have an additive running time, certainly at most, the product assuming both of these numbers are at least one. If I have a kernelization, as I said, I could run the kernelization algorithm in polynomial time and then run any finite algorithm to solve the problem and I would get some F of K running time.
+
+So that's easy enough, right? Kernelize, then run any algorithm on the kernel. The kernel is produced output, or sorry, the kernel is the produced output K prime. No, yeah, X prime, K prime. So let's do the other direction now. That's the interesting part.
+
+So suppose I have an algorithm that runs in some running time. I claim that I can turn it into a kernel and the proof is going to look just like before. So there's two cases. One is the F of K, let's say, is less than or equal to N. Actually, let's do the other case first. I think it's a little more natural.
+
+It doesn't really matter. They're both, yeah, they're both easy for different reasons. Then the parts are going to look different. So the first case, if N is at most F of K, what do I do in that situation? In other words, kernelize of this thing of size N. I want to kernelize into something of size F of K.
+
+What do we do in that situation? Nothing, right? I'm done already. So that's already kernelized case. So that's great. So the other cases, and it's big, that's the more interesting case, of course, N is greater than or equal to F of K.
+
+What happens here then? Well, just like last time, that means that this running time, F of K, is now at most N. And that means this running time is at most N to the C plus 1. So that means FBT algorithm, the FBT algorithm that I'm given, is because we're assuming here we're given an FBT algorithm, we want to produce a kernel. In that case, the algorithm runs in N to the C plus 1 time, which means I can actually run it. That's polynomial time.
+
+So before I needed a polynomial time kernelization algorithm, if it happens that F of K is at most N, then I can actually run the FBT algorithm, and that would be a valid kernelization procedure. Now, the FBT algorithm actually solves the problem. Let's say it says yes or no, whether the answer to my original question, the kernelization procedure has to output an input to the problem. So what I need to add, one thing here, which is output a conical yes or no input accordingly. If the FBT algorithm, here I'm thinking about decision problems, if the FBT algorithm says yes, I'm going to output one instance, one input of the problem where the output is yes, I know that one exists because this algorithm said yes. So in a constant amount of space, I'm able to write a yes input, or in a constant amount of space, I write a no input.
+
+So the new kernel will have a constant size, which is smaller than F of K. Okay. So that's it. So either I output the same input that I was given, or I output something of constant size that encodes a yes or no, kind of relatively trivial. The catch is that the size of the kernel, the size of the output, in general, here is going to be exponential in K, because F of K presumably is exponential in K. So that's annoying, right?
+
+That's what you might call an exponential-sized kernel. So an interesting question. And exponential-sized kernels are equivalent to FBT, something that may not be equivalent is a polynomial-sized kernel. It would be nice if I start with something that's polynomial in N, and I reduce it to something that's polynomial in N, and then I run something that's exponential on that, but it will only be singly exponential in K, hopefully, right? Whereas if I use this kernelization procedure, if I apply to vertex cover with one of these algorithms, I'm going to get a new thing that's size is exponential in K. If I run one of these brute force algorithms, I'm going to get something that's doubly exponential in K.
+
+That's not so hot, because I know how to do exponential in K, all right? But this is the general idea of kernelization, and why it's not surprising that you can do it. I have one catch here, which is this. This is an algorithm. This is an algorithm. It compares N to F of K.
+
+In order to do this, you have to know what K is. Minor technicality, right? If you don't know what K is, you can basically run this algorithm with a timer, a stopwatch. And if it's running time exceeds N to the C plus 1, then you know you're not in that case, right? If it finishes with that time bound, great. You found the answer.
+
+If it doesn't finish, then you know that you must be in the other case, and then you just quit and output your original input and say, I'm kernelized, done easy. So that's a technicality, all right? So much for general theories. Let's go back to algorithms for a second. So I claim that we can find a polynomial kernel, a polynomial-sized kernel. It's going to be quadratic for vertex cover.
+
+These are hard to find. There's a whole research industry of finding polynomial kernels. So I'm going to give you some methods, but they are specific to vertex cover. So here's the first thing. So here I have a vertex U, and suppose I have an edge connected from U to U. This is called a loop.
+
+What can I do from a vertex cover perspective? What can I conclude about that image there in the first bullet point? You must be in the vertex cover because this edge really only has one endpoint. So far, relatively easy. So what I can do in this case is say, okay, U is in the vertex cover and then delete U at its instant edges. And then we have to decrement K.
+
+So that should feel kind of familiar, but in this case, there's no guessing. We just know U must be in the cover. All right? So another case, second bullet point. Suppose I have U and V, and there are many edges connecting them. This is called a multi-edge.
+
+So maybe you just assume your graph is simple, but if you don't assume your graph is simple, we might have these kinds of situations. What can I do in this case? What can I guarantee? You can remove all but one of the edges. Let's just delete all but one. If I cover one of them, I cover them all, right?
+
+In general, we're going to have a bunch of these kinds of simplification rules. They're going to guarantee correct. They don't change the output, but magically we're going to end up with something the size of a function of K. We haven't done much yet, but now we know that the graph is simple, meaning it has no loops and no multi-edges. The next thing I want to think about is a vertex of degree greater than K. So third bullet.
+
+K is the third, what? Not third. K is the current value of K. So suppose I have a high degree vertex, more than K, edges out going from it. K, what can I say about them? You must put it in the cover, right?
+
+Why? Because then you need to cover all the remaining error vertices. So any vertex of degree greater than K must be in the vertex cover, which I was calling S. Okay? So delete that vertex and its incident edges. Decrement K, because we just used something.
+
+So I just keep doing this. Every time I see a vertex of degree more than K, delete it, decrement K. Now I have a new graph and a new value of K. Look for any vertices whose degree is more than K. If I find one, delete it, repeat, repeat. Keep repeating until you can't anymore.
+
+How much time is that going to take? I don't know, maybe quadratic, right? I look at all the vertices, look at their degrees. I can look over all the edges, increment the degrees. In linear time, I can find whether there's any vertex of degree more than K, then delete it in linear time, then try again. And this will happen at most linear time, many times, because I can only delete a vertex once.
+
+So I delete at most V vertices. So overall running time here is at most V times E polynomial. So now after I've done these reductions, I have a graph where every edge has degree at most K. So it's like a bounded degree graph. Why do I care about a bounded degree graph? Remember our example, which was our star graph, where N was large but K was very small.
+
+N was V and K was 1. Now a star graph is special because it has a very high degree vertex. In general, if I have a vertex of some degree, say K, and I put it in the vertex cover, it covers K edges. So each vertex in S covers at most K edges, whatever the degree is. So that means you don't get much bang for your buck anymore. We've already taken care of all the high degree vertices where you get a lot of reward for putting one vertex in the cover.
+
+Now this is the new value of K. It may have decremented from before, every vertex that we could possibly put in the set will only cover K vertices. I'm sorry, K edges. Sorry. Now we know that we only get to put K more vertices into that set. We know we're supposed to take, yeah, we're supposing that sides of S is at most K, right?
+
+So that means that the number of edges, size of E, must be at most K squared, all right? Because every one I put into S covers at most K edges, all of them have to be covered. This means my graph is small. Now, slight catch, there might be a whole bunch of vertices that have no edges incident to them. So I need to delete isolated vertices, let's say degree zero vertices. You don't really want to put those into your vertex cover.
+
+No point, right? They don't cover anything. So let's delete those. Okay, so let's delete those. And now I still may not have a connected graph, but in the worst case, I have a matching. I know the total number of edges is at most K squared.
+
+That means the total number of vertices is at most twice that, 2K squared. So after all those operations, I assumed that S was size at most K. And then if I do all these operations, I get a graph with at most 2K squared vertices and at most K squared edges. So the total size of the graph, which I'm calling N, N, which is size of V plus size of E, is ordered K squared, right? 2K squared. And I assume that there was a vertex cover size at most K throughout this. So what I do is I run this kernelization algorithm and I see is the graph that I produced at most 3K squared.
+
+If it is output it, that's the kernelized thing because it's small. If it isn't, if the graph I've produced is still too big, that must mean that this assumption was wrong, which means the answer to the vertex cover problem is no. There is no vertex cover of size at most K. That's kernelization K. So I've produced a quadratic sized graph, quadratic in K in polynomial time. So kernelization at its finest, a polynomial kernel, polynomial time.
+
+We get that down to something the size of polynomial in K. This is how you should, if you want to solve vertex cover, you might as well do these reductions first because they will simplify your thing. And now if you happen to know your vertex cover is small, then the graph will be small. So now we could either, we could run either of our algorithms. Presumably we should run the better one, but for fun, let's analyze both of them. So we're going to get a faster vertex cover algorithm from a fixed parameter tractability perspective.
+
+So here's a new FTP algorithm, two of them. First we kernelize. We spent order VE time. So now we could say, let's say option one, let's use the brute force algorithm after that. The running time of that is E times V to the K, but now E is K squared and also V is order K squared. So let's, well, let's not, yeah, actually I do have to worry about the constants here because it's in the base of an exponent.
+
+So we're going to get K squared for the E term and the V term is going to be two times K squared. Okay, and that's going to be raised to the K power. So I'll simplify a little bit. This is like two to the K times, I guess, K to the 2K. It's K to the K squared. Not bad.
+
+It's a function of K. It's exponential. Okay, we have a better algorithm, but the point is once you kernelize, you can pretty much do silly algorithms, right? You can, and you can still get a really good running time. Okay, we'll get a slightly better running time using the bounded tree search. So if we use bounded tree search, we have V, V is 2K squared.
+
+So here the constant doesn't matter because there's no exponent. And then we have times 2 to the K. So we're going to get K squared times 2 to the K algorithm. Kind of funny symmetry here. 2 and K are switching roles. Of course, 2 to the K is the big term, but now it's only singularly exponential in K. The brute force thing is like 2 to the K log K.
+
+The bounded tree thing is only 2 to the K. So it's better. Brute force is like K factorial. Bounded tree search is just 2 to the K. So it's a big improvement, right? This will be a much more practical algorithm.
+
+So we run the kernelization, then we run the bounded tree search algorithm. And so the total running time is VE plus K squared to the K. The story doesn't end here. There's dozens of papers about how to solve vertex cover from fixed parameter tractability perspective. So that's vertex cover. If you have a vertex cover instance, and you know that it's going to have a relatively small vertex cover, then these are the algorithms that you can use for that.

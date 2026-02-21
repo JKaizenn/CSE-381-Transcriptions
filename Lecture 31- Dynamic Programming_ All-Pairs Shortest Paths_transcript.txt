@@ -1,0 +1,207 @@
+Okay, in this lecture, we're going to start an exciting series of algorithms for graphs. So we've done a lot of data structures. We're going to get back into algorithms with dynamic programming some more. And today and the next few lectures, we're going to see lots of cool algorithms for graphs. So first a bit of recall, we're starting with shortest paths, which you've seen in the context of single source shortest paths. So typically, like you do a Google Maps query, you think, you know, I want to go from A to B.
+
+We looked at a problem which was I give you point A here, it's called S for the source. Okay. I give you a source vertex and capital B is the set of all vertices, capital E is the set of all edges. Remember graph notation, let's say it's a directed graph, you've got edge weights like the time it takes to traverse each road. And you want to know how long it takes me to get from S to V for all V. So this is from one given point to everywhere.
+
+Okay. Today, we're going to solve a harder problem, which is all pairs. I want to go from A to all B. What we saw earlier in the semester was single source, where I just give you one of the vertices and I want to know how to get get everywhere. The reason you saw that version and not the A to B version is because the best way we know how to solve A to B is to solve this problem. So at least from a theory standpoint, we don't know how to beat Dijkstra's algorithm and Bellman Ford's algorithm for the A to B problem.
+
+Okay. So let me remind you in a few different scenarios, what algorithms we have and how long they take. So the scenarios of interest are the unweighted case, a non-negative weighted case, the general case, arbitrary weights, positive and negative, and DAGs, acyclic graphs. These are some interesting special cases. So what's a good algorithm for single source shortest pass and unweighted graphs? BFS, right?
+
+Breath for search takes how long? V plus E. That's for graphs. V plus E is considered linear at time. That's how long it takes to represent the input. So you got to look at the input, most algorithms, and the BFS is optimal against that.
+
+So for non-negative edge weights, what do we use? Dijkstra's and this takes V log V plus E. So this answer kind of depends on which heap structure you use, but this is the best we know. If you use a Fibonacci heap, which we don't actually cover, but it is in those reference textbooks, you achieve log V for extract key and constant amortize for each decrease key operation. So this is for extracted min and decrease key. So this is the best we know with a Dijkstra type approach.
+
+So for general weights, what do we use? Bellman-Ford, right? And that takes how long? V E, that's the usual statement. Technically, we should assume V E is at least V for this bound to hold, but that's the way we think of it. So clearly not as good, a lot slower.
+
+And for a Ciclic graphs, we do dynamic programming is one answer, right? In some sense, all of these algorithms are, especially Bellman-Ford is a dynamic program. We'll see that in a little bit. So another interpretation, topological sort, and then Bellman-Ford, one round of Bellman-Ford. So Bellman-Ford actually works really well if you know the order, you should relax the edges. And if in an acyclic graph, you can do a topological sort, meaning you visit all the vertices so that whenever you visit the right endpoint of an edge, you've already visited the left endpoint.
+
+If you do Bellman-Ford in that order, you only have to do one pass and then you're done. So the total cost is just linear. But think to remember, especially on like finals and so on, if your graph is acyclic, you can achieve linear time. But in this case, Bellman-Ford is your answer for single source. Now, these are the best algorithms we know for each of these cases. So I'm not going to improve them today.
+
+We saw them earlier. But for all pairs shortest pass, we can in some sense do better sort of. I didn't remind you of the delta definition, but I want to go over that briefly. So delta of S comma V is the weight of the shortest path from S to V. The weight is well defined even though there may be many shortest paths. There's one best weight.
+
+But there's some special cases. It could be infinity if there's no path. That's sort of by definition. So it's infinite costs to get. If there's no path, then we say there's infinite weight one. And it could be minus infinity in the presence of negative weight cycles.
+
+So let's say if there's a negative weight cycle on the way, if you could reach a negative weight cycle from S and then still get to V from there, then the best way is to go to that cycle, loop around infinitely many times and then go to V. So for all pairs shortest paths, we have a similar setup. We have a directed graph VE. And we have an edge weight function W in general could have negative weights. And our goal is to find delta of U comma V for all U and V. So single source shortest path is the sort of thing that you might want to do.
+
+Just given a graph and you want to find a shortest path from A to B. I said this is the best way we know how to do A to B essentially. But all pairs shortest paths is what you might want to do if you're pre-processing. So if you're Google Maps and you want to be able to very quickly support shortest path queries between major cities, then you might want to first compute all pairs shortest paths for major cities because road networks don't change very much. The large scale. This is ignoring traffic and so on.
+
+So pre-compute this and then given a query of two vertices come in probably get a million queries in a second. You could very quickly know what the answer is. And this is the basis for real world shortest paths. Basically you don't compute shortest paths from A to B every single time. You use waypoints along the way and you have pre-computed all pairs shortest paths between waypoints. So that's some motivation for this.
+
+I guess in some sense internet routing is another situation where at any moment you may need to know the shortest path. The fewest hop path say to get to an internet site. You know the IP address. You need to know where to go. You don't need to know the whole path. You need to know the next step.
+
+But in some sense you're computing all pairs shortest paths. That's a more dynamic situation. Okay. So here's the results we know for all pairs shortest paths. So in some situations except I won't think about acyclic graphs here, they're a little less interesting. So the obvious thing to do to solve all pairs shortest paths is to just run the single source algorithm v times once from each source.
+
+So I could do v times breadth first search, v times dystros, v times Belman Ford. And now I just need to update my bounce. So then v becomes v squared plus v e. If you're a little bit clever or you assume e is at least v, that becomes v e. If I run dystros v times, I'm going to get v squared log v plus v times e. And if I run Belman Ford v times, I get v squared e.
+
+The interesting thing here is that we can beat the result for v times Belman Ford, which could take as long as v to the fourth time. We can shave off a whole v factor. So a better case algorithm is called Johnson's algorithm that this will be covering today. And it achieves the time bound shown in the bottom right, which is the same as running dystros v times. So it's between v squared log v and v cubed. And that's cool because this is the best algorithm we know for all pairs non-negative edge weights shortest paths just running dystros v times.
+
+Not very smart, but that's the best thing we know how to do. And what this is, even when we have negative edge weights, actually we can achieve the same bound as running dystros. This is a bit counterintuitive because earlier in the semester I told you if you have a negative edge weight, you can't use dystros. Turns out in the all pairs shortest paths case, you kind of can. How can that be? Because this is a harder problem.
+
+If you could solve all pairs shortest paths, of course you could solve single source, right? That's actually the luxury. Because it's a harder problem, we have this v e term in the running time, which lets us do things like Belman Ford once. And running Belman Ford once will let us run dystros v times. That's the reason we can achieve this bound. For starters, I want to show you some connections between all pairs shortest paths and dynamic programming and matrix multiplication, which turn out to give for dense graphs, we're just achieving v cubed in all situations.
+
+So the Floyd-Warchel algorithm and some of these will get very close to v cubed. So we're going to start with our first approach to solving all pairs shortest paths that is not using an existing single source algorithm is dynamic programming here. Let's go off here. So you all already know my thoughts here. First I like to think about in a dynamic programming. I like to think what are my sub problems?
+
+The second thing we want to think about is what am I guessing? I'm going to guess some feature of the solution. The third thing we want to write a recurrence relating sub problems solutions. I'm basically done, but there's a couple of wrap up things, which is I'm going to have to use. So number four, I need to check that I can actually resolve these sub problems in some order that's valid because this is saying that the constraint graph on some problems should be acyclic because if there's a cycle in the constraint graph, you take infinite time. Even if you memoize, if you do infinite recursion, bad news, you'll never actually finish anything.
+
+So you never actually write anything in the memo table. So I want to make sure that it's acyclic. This is really the same thing that we talked about, which is topological ordering. Personally, you could argue that it's acyclic. I like to just write down, here's a topological order. That's a nice proof that it's acyclic.
+
+If you write that down as for loops, then you actually have a bottom up dynamic program. If you just take the recurrence, stick it inside of the for loop, you're done, which we'll do in a moment. And finally, you need to solve the original problem. And then there's analysis and so on. But for specifying the algorithm, these are the key things you need to know. The hard part is figuring out what the sub problems should be so that your dynamic program becomes fast.
+
+Running time is going to be number of sub problems times the time per sub problem, right? For each sub problem, usually we're going to want to guess some feature of the solution to that problem. Once we do that, the recurrence becomes kind of trivial. Just for each case, you say what it should be. And then, okay, we checked that it's acyclic, and we make sure we can actually solve our original problem using one of the sub problems. Sometimes our original problems are some of the sub problems.
+
+I think that will happen here. But sometimes you need to do a little bit of post computation to get your answer, okay? So what am I going to do for sub problems? Well, I have a bunch of different problems involving pairs of vertices. I want to find delta of u, v for all u and v. So I want to know what is the weight of the shortest path from u to v?
+
+If I stopped there and said that was my sub problem, bad things are going to happen because I will end up, there's no natural way to make this thing acyclic. If I want to solve u to v using, I don't know, u to x and then x to v, something like that, there's no way to get out of the infinite recursion loop, okay? So I need to add more sub problems to add more features to my solution, something that makes it so when I try to solve my sub problem, I reduce it to other sub problems. Things get smaller so that I could actually make progress. So there are two natural ways to do this. We'll call them method one and method two.
+
+Method two is actually Floyd Marshall, but shortest path, it uses at most a given number of edges. So let's parameterize by how many edges, okay? So using at most m edges. So this is, of course, an additional restriction, but at the end of the day, the problem I want to solve is going to be essentially d, u, v. Let's say n minus one, okay? If I want a shortest path that does not repeat any vertices, then certainly it has at most n minus one edges.
+
+So in fact, the claim would be that d, u, v equals d, u, v, n and so on, right? If you go larger than n minus one, it shouldn't help you. If you know that your shortest paths are simple, if you know that shortest paths don't repeat vertices, okay? So this would be if there are no negative white cycles, then we know it never helps to repeat vertices. So in that situation, we would be done if we could solve this for all m. Now, slight catch, how do we know there's no negative white cycles?
+
+You know, we could run at Bellman Ford, I guess. That's a little tricky because that only finds reachable negative white cycles. We will end up knowing whether, yeah, whether there are negative white cycles. So there will be no negative white cycles if and only if there's no negative diagonal entries. So say d, v, v, n minus one. So it turns out this algorithm will detect there's a negative white cycle by finding that the distance from v to v is negative.
+
+Essentially, it's going to be zero. If it turns out to be negative, we know there's negative white cycle. With more work, you could actually find all the reachable pairs and so on, but I'm not going to worry. I'm just going to say, hey, negative white cycles, throw my hands up in the air and give up for today. So I can solve my original problem if I can solve my subproblems. And now things are easier because we can essentially assume in solving our problem that we solved smaller subproblems for however we define smaller.
+
+And that's what's going to be given by this topological order. So obvious notion of smaller is smaller m. Presumably, we want to write this with an m in terms of this with an m minus one or smaller. So this gets to our guessing part. What feature of a shortest path could we guess that will make it one edge shorter? There's probably two good answers to this.
+
+The next edge, which I guess we could mean the first edge, could guess the first edge or you could guess the second edge. Or no, that would be harder. So the last edge, that would also work. So we're going to guess the last edge. This is, I think, how this slide is written. So we're going to guess the last edge.
+
+But the first edge would also work fine. So we'll say last edge, x comma v. We know we end by going into v. So let's guess the vertex previous to it in the shortest path. Now of course, we don't know what the edge is. The guessing just means try them all as you saw last time.
+
+So now it's really easy to write the recurrence. So we've got d, u, v of m. We want to find the shortest path. So it's probably going to be a min on our outside. And we're going to consider the path of the form d go from u to x using fewer edges. If this is the last edge, then we use m minus 1 edges to get to x.
+
+And then we follow the edge x comma v. So we just add on the weight of the edge x comma v. If x was the right answer, this would be the cost to get from u to v via x, where xv is that single edge at the very end. We don't know what x should be. So we're just going to for loop over x for x and v. So this is using Python notation.
+
+And that will find the best answer, right? Done easy. Once you know what the subcrumbs are, and once you know what the guessing is, basically, I'm just adding in a min and a for loop to do the guessing. So that's my recurrence, except I should also have a base case here. It's especially important. So the base case is going to be when m is the smallest.
+
+So that, let's say, is 0. What is the weight of getting somewhere using 0 edges? Well, typically it's going to be infinity. But there's an interesting situation where at 0, namely when u equals v, there is a way to get from u to itself with 0 edges, and that costs 0. But anywhere else, it's going to cost infinity. There's no path.
+
+So the sort of definition, a definition, I should say, if it exists, otherwise, it's infinity. So then I get those infinities. But this is kind of important because maybe I actually use fewer than m edges. I wrote less than or equal to m here. This is also less than equal to m minus 1 edges. But in some sense, I'm including the case here where x equals v.
+
+So I just stay at v at the very end. So it's because I have a 0 here. I'm implicitly including a situation where actually I just used du v m minus 1. That's in the min here. So it's important to get that base case right. So now I need a cyclic ordering.
+
+So as I said, things get smaller when m is smaller. So all that means is do the for loop for m on the outside, then do the for loop for u in v. For those, it doesn't matter what order you do as long as you've done all of m equals 0 before you do all of m equals 1, before you do all of m equals 2. So that's the nested for loops that gives you the right order. And so I guess, yeah, OK. Let's look at the relaxation at the bottom up.
+
+So first we do a for loop on m. Then we're going to do the for loops on u in v. The last for loop here starting on line four is called the relaxation cap state. What did I just say? The relaxation step. It probably would look more familiar if I wrote here like w of xv.
+
+You could also write wxv. OK, that's an alternative for both of these. Probably should write the same way. But in either case, we call this a relaxation step because it's kind of a technical reason. But what we'd like to satisfy, we know that the shortest path should satisfy the triangle equality. Right?
+
+If you look, there's three vertices involved here. We have a u, v, and an x. We're looking at the shortest path from u to v compared to the shortest path for u to x and the shortest path from x to v. Certainly the shortest path to get from u to v should be less than or equal to the shortest path of u to x plus x to v. Because one way is to get from, one way to get from u to v is to go via x. Right?
+
+Remember when we drew u, v, and x in a triangle. So this if condition would be a violation of the triangle inequality. It means we definitely do not have the right distance estimates if du, v is greater than ux plus xv. OK, so if it's greater, we're going to set it equal because we know a way. Sorry. We know a way to get from u to v via x.
+
+We know that it's possible to do this. Assuming our d values are always upper bounds on reality, then this will be an upper bound on the best way to get from u to v. OK, so this is clearly a valid thing to do. Relaxations are never bad. If you start high, these will always improve your shortest path so you get better estimates. And that's exactly what D-String Bellman-Ford did, maybe with w instead of d, but they're all about fixing the triangle equality.
+
+And in general, and optimization, there's this notion of if you have a constraint and inequality constraint, like the triangle inequality, and it's violated, then you try to fix it by the success of relaxation. So that's where this term comes from. It doesn't really matter here, but all of our shortest path algorithms are going to do relaxations. All the shortest paths algorithms I know do relaxations. So this is familiar. I just expanded out the min as a for loop over x each time, checking whether each success of entry is better than what I already had.
+
+If it is, I update. So in the end, this will compute a min more or less. But how slow is this algorithm? How long does it take v to the fourth case? So I haven't actually improved anything. So that was our dynamic program.
+
+One time for dynamic programming. Two. So now we get to do a dynamic programming. Number two, also known as the Floyd-Warshall algorithm. So again, I'm going to express it in five steps. OK, first step, what are my sub problems?
+
+This is a key difference and a key insight for Floyd-Warshall is to define the DIJ problems to avoid conflict. We're going to call them C-I-J or in this case, C-U-V, because here the matrix product view will not work. Yeah, won't work. Totally different universe. So I'm going to assume that my vertices are numbered one through N. And now the idea is first I'm going to think about my graph formed by the vertices one through K, roughly.
+
+And I want to know for every vertex U and every vertex V, what is the shortest path from U to V or the weight of the shortest path from U to V that only uses intermediate vertices from one through K? So actually, you and V, they might be larger than K, but I want all the vertices in the path to be one through K. This is a different way to slice up my space. And it is the right way. This is going to do a factor of N better. It turns out that's just an insight you get from trying to do all the dynamic programs you could think of.
+
+And eventually, Floyd-Warshall found this one, I think in the 70s. So it was easier back then to get a new result. But this is very, very clever. So cool idea. Now the question is, what should I guess before I guessed what the last edge was? OK, that's not going to be so useful here.
+
+Can you think of a different way to guess? We're trying to solve the problem where I get to use vertices one through K. And presumably, I want to use subproblems that involve smaller K and say that say involve like vertices one through K minus one. So vertex K is relevant. What should I guess about vertex K? So I either use vertex K or I don't.
+
+OK, that's the guess. It is K in the path at all from U to V. So that's a weaker thing than saying K is out of position I in the path. Here I'm just saying is K in the path at all. And that's nice because I already know how to get there without using K because that's C, U, V, K minus one. And then you also have to consider the situation where I go to K and then I leave.
+
+So the recurrence is going to be C, U, V, K is the min of two things. One is when K is not in the path. That's C, U, V, K minus one. And the other option is that I go to X first. Nope, sorry, go to K first used to be X. Now I've renamed it K.
+
+Don't know why K minus one. And then I go from K to the V, K minus one. All right. So that's it. Min of two things before I was taking the min of n things, but before there were n choices for my guess. Now there are two choices for my guess.
+
+The number of subproblems is still the same. Still V cubed. But the guessing part and the recurrence part is now constant time instead of linear time. So now I'm V cubed time. Progress. Pretty cool.
+
+This new dynamic program is just a different way of thinking about it. Turns out to be faster just by a log factor, but a little bit faster. I need some base cases. C, U, V of zero is going to be now. Now it's the weight. It's the weight of the edge, U, V.
+
+It's a different base case. Before I was using zero edges, right? Now it's not using any intermediate vertices. So that's how the weights come up into the picture. Because actually there are no weights of edges before, right? So that's a little weird.
+
+The only place the weights come in is when K equals zero. This is in some sense still relaxation, but it's a little bit weirder, a little bit different order. I mean, the key thing here is because the way we set up these subproblems with the intermediate vertices, we know K is the only vertex in question. Before it's like, well, I don't know where you can go to at the end, but now we know that either K is in there or it's not. And in each case, we can compute it using smaller subproblems. And so we save that linear factor.
+
+This is for a direct-to-graph. So you envy our order here. And this is the weight from U to V. And that will work just as well. So let's look at the nested for loops again. Okay.
+
+Why not? Right? Because then you'll just see its relaxation again. So the base case is shown here. We're doing K, K in order, right? Let's say these are really the same kinds of for loops because yeah.
+
+Okay. But here we care about the order slightly, right? Almost the same code as before. The last lines, again, just relaxation stuff. We're relaxing different edges in different orders basically because K is involved in here. We do that for K equals one, then for K equals two and so on.
+
+But in the end, it's just relaxations. So you can use that to prove that this actually computes the right shortest pass. We're not going to do that here, but cubic time instead of quartic. Okay. So that's Floyd-Warchel. Very simple.
+
+And so a lot of people, if you need to solve all pairs shortest pass in dense graphs, this is the best we know how to do. So this is what you should implement. It's like five lines of codes and you achieve a V cubed bound. But for our sparse graphs, we can do better. So the rest of this lecture is going to be about Johnson's algorithms, where for sparse graphs, we're going to get closer to quadratic time. We're going to match running D strip and it's V squared log V plus E times V.
+
+Sorry. So when E is small, that's going to be close to quartic, no, quadratic. When E is big, it's going to be cubic again. So we'll never be worse than this Floyd-Warchel algorithm, but for sparse graphs, it's better. So Johnson's algorithm, dynamic programming is five steps, but Johnson's algorithm, only three steps. So it's simpler.
+
+It's actually more complicated, but it's all about what the steps are. So here's the crazy idea in Johnson's algorithm. We're going to change the weights on the edges. And to do that, we're going to assign weights to vertices. We're going to choose a function of h, function h, I guess I should say, think of it as a height function that maps vertices to real numbers. And then we're going to define w sub h of u, v.
+
+This is a new way to think about edge weights that depend on h that's defined in a simple way. It's the old edge weights plus h of u minus h of v. You could define it the other way, but it's better to be consistent here. So this is a way to tweak edge weights for every edge weights. This is for directed graphs, clearly. For u is the beginning, the head, I don't know if it's the head or the tail, but the beginning of the edge, v is the end of the edge.
+
+I'm going to add on the height of h and subtract out the height of v. Why? Because that's the definition. I want this to be greater than or equal to 0. That's the such that I want to assign a function h so that these new weights are all greater than or equal to 0. And this is for all u and v.
+
+Why would I do that? To use diastras instead of Bellman-Fort. So that's step two, run diastras on, I guess, the usual graph. But now this new weighted graph, w sub h, if all the weights are non-negative, I can run diastras. So this will give me what I call the shortest path sub h of u comma v for all u and v. It doesn't give me the actual shortest pathways I want.
+
+It gives me the shortest pathways using this w h, but I claim that it's almost the same. I claim this reweighting preserves which paths are shortest because so in particular, I claim that delta of u v is delta sub h of u v. That should be the other way, right? Minus, no, yeah, we're good. Minus h of u plus h of v. If this was a single edge, you can see I'm just canceling off these terms.
+
+But in fact, I claim for a whole path, every path from u to v gets changed by exactly the same amount. Okay, so this is a claim about the shortest path in effect, a claim for every path from u to v, shortest or not, I guess. If I measure it in a regular weights w versus weights w sub h, the only difference is this fixed amount, which depends on u and v. It does not depend on the path. And therefore, which paths are the shortest are preserved. So when we compute the shortest pathways, we can translate them back to what they should be in the original weighting function.
+
+And furthermore, if you have parent pointers and you actually find the paths, the paths will be the same. So shortest paths will be the same. And let's prove that claim. It's not too bad. Let's look at the path from u to v. So I'm going to label the vertices along the path v not is going to be u.
+
+That's the first one, then be one, then be two and so on. Let's say the path has length k and v k is v k. So that's just a generic path from from u to v. And now I want to compute the w sub h of that path. So the weight of a path is just the sum of the weights of the weights of the edges. So I could write this as a sum of i equals one to k of w sub h of vi minus one comma vi.
+
+I think we just got to be careful not to get the indices wrong. Okay. Now, w sub h is defined to be this thing shown. W plus h of u minus w of v. So this is the sum i equals one to k of w vi minus one vi plus h of vi minus one minus h of vi. And what does the sum do?
+
+Telescopes, right? So success. This vi, so we're going to this negative h of vi is going to cancel with the plus h of vi minus one in the next term, except for every the very first one, right? And the very last one. Those are exceptions. So then we just have the weight of the path according to regular weight function plus h of v zero plus minus h of v k.
+
+And that's just the weight of the path plus h of u minus h of v. So this was talking about an arbitrary path case. So this is proving the stronger thing I said that every path gets lengthened by this function, which is purely a function of the endpoints. So in particular, this means that the shortest path in w land will be the shortest path in w sub h land. All right, so this means shortest paths are preserved. Shortest paths are still shortest.
+
+And therefore, if I look at the delta function, which is about the shortest pathways, this claim holds. So this is our proof of the claim. There's one gaping problem with this algorithm, which is how in the world do you find h in step one? And step one, if we could find h, then we know we could run dystra step two and we can do step three. And dystra is going to cost ve plus v squared log v. I didn't say it, but we run v times dystra.
+
+We run it v times. This is going to take v squared log v plus ve to do. Step three is just going to take quadratic time v squared to update all the weights, update all the delta functions. The missing step is how do we find our weight function? I claim this problem of finding h that has this property is very closely related to shortest paths. It's weird, but we're going to use shortest paths to solve shortest paths.
+
+Okay, so let's do it. So step one, finding h, what I want to do. So I want to have w of uv plus h of u plus h of v to be greater than or equal to zero. I'm going to put the h's on the right hand side, then flip it all around. So this is like saying h of v minus h of u is less than or equal to w of uv for all u and v. This is a problem we want to solve, right?
+
+W's are given, h's are unknowns. This is called a system of difference constraints. If you've heard about linear programming, for example, this is a special case of linear programming. Don't worry if you haven't heard it because this is an easy special case. We're going to solve it much faster than we know how to solve linear problems. It's a particular kind of thing.
+
+You could think of these. These are maybe times that various events happen, and these are constraints about pairs of them. Say, well, the start time of this event minus the end time of that event should be less than or equal to one second. You can use this to do temporal programming if you could solve these systems. We're going to solve these systems when they have a solution. They don't always have a solution, which is a bit weird because we're relying on them to always have a solution.
+
+How could that be? Negative weight cycles. This is all going to work when we don't have negative weight cycles. And that's exactly going to be the case when this system of difference constraints has no solution. So let's look at it in a couple of steps. The first theorem is that if the graph VEW has a negative weight cycle, then that system has no solution to the difference constraints.
+
+This is going to be, again, we'll do another proof similar to the last one. So consider a negative weight cycle. We'll call it V0 to V1 to V2 to Vk and back to V0. So the claim is the sum of these weights is negative. And now I'm just going to write down the constraints, which are supposed to have a solution. Maybe they won't.
+
+So I'm going to write H of V1 minus H of V0 is less than or equal to W of V0 WV1. And then H of V2 minus H of V1 less than or equal to W of V1 V2. Repeat that K times. I'm going to get H of Vk minus H of Vk minus 1. And then the last one, the wrap around H of V0 minus H of Vk V0. What do I do with these inequalities?
+
+We sum them, right? And then they have a bunch of cancellations. So I end up with 0 at the bottom. Everything cancels. And then over on the right-hand side, I have less than or equal to the weight of the whole cycle. I'm just adding up the weight of the cycle.
+
+I didn't give the cycle a name, so we're just calling it cycle. Now, the cycle has negative weight. So this is less than 0, strictly less than 0. So we're saying that 0 is strictly less than 0. That's not true. So that means there's no way to get all these constraints simultaneously true.
+
+Proof by contradiction. So that establishes a connection in the direction we don't want it. What we want is their converse, which is if there's no negative weight cycle, then there's a solution. Luckily, that's also true, but this is a little easier to see. So now we do the other half. So it's going to be there is a negative weight cycle if and only if there is a solution.
+
+No, only if there's no solution. So in particular, the case we care about is if there's no negative weight cycle, then there is a solution. We care about both, but this is a more practical direction. OK, so we're going to prove that. You've seen that there's a connection in negative weight cycles. Now I'm going to show there's a real connection to shortest paths.
+
+Negative weight cycles are just kind of a symptom of the shortest path being involved. So now we're going to use shortest paths here. So suppose we have some graph. I'm going to draw a little simple graph here with some weights. What I'd like to do is compute the shortest path from a single source in this graph. Question is which source because none of the vertices can get to every node, right?
+
+Because, for example, the graph is disconnected, but in general, there's no one vertex that can reach all others. So there's no single source that can reach everywhere. OK, I really want to reach everywhere. So what am I going to do? I'm going to add a new source. I'm going to call it S, and I'm going to add an edge to every other vertex.
+
+Now I can get everywhere from S. OK, what are the weights? Zero, right? Zero sounds good. I don't want to change the weights in some sense. So I put zero at everything at zero to everything.
+
+That's not going to change much. Now notice I add no cycles to the graph. So if there were no negative weight cycles before, there's still no negative weight cycles because the cycles are the same as they were before. But now from S, I can reach everywhere. If there's no negative weight cycles, that means there's a well-defined finite value for delta of S, V for all V. And that is H.
+
+It's crazy, right? So we add S to V. We're going to add S, V to E for all V. And that's old V. I'm going to set the weight of S, V to be zero for all V. And so now delta of S, V is finite for all V.
+
+It's not plus infinity because I know there is. It's got to be less than zero, right? I can get from S to everywhere, so it's less than positive infinity. It's also not negative infinity because I've assumed there's no negative weight cycles anywhere. So I'm going to let H of V be delta of S, V. And this works magically.
+
+That's insane. Every time I see it, it's like, this is crazy, crazy, but correct. This is Johnson. So it's like you just pray that this happens and it works. Why would it happen? Why would it be that W of UV plus H of U minus H of V?
+
+We want this to be greater than or equal to zero. OK, so let's see. We have a weight of U, V. We have the shortest path from S to U. And we have the shortest pathway from S to V. We want that to be greater than or equal to zero, right?
+
+Why? Triangle equality, which inequality, which is true. It turns out the things that we've been staring at for so long is just triangle inequality. So of course, we want to compute shortest paths because shortest path satisfied triangle inequality. The whole name of the game in shortest paths is to find a place where you don't satisfy triangle inequality and fix it. So if it makes sense and it's possible to do, Bellman-Ford will do it.
+
+So how we're going to do step one, then we're going to run Bellman-Ford once. We're going to add the source vertex so that there's a clear source to run Bellman-Ford from, right? And then run Bellman-Ford from there only. This will give us a weight function for the vertices, namely how long does it take to get from S to those vertices? Those weights will actually all be negative. But then we're going to modify the edge weights, which negates some of them.
+
+So some of them are going to go up. Some of them are going to go down. It's kind of weird. But when we're all done, all of the weights will be non-negative because we had triangle inequality. And now we can run that shows from every vertex. So it's like we bootstrap a little bit.
+
+We run Bellman-Ford once because we know it handles negative weights. It will also tell us if there's any negative weight cycles. That's why we want this theorem. Maybe Bellman-Ford says, I can't satisfy triangle inequality because there's a negative weight cycle. I don't know what to do. Then we know, well, actually there was no solution.
+
+OK, so kind of interesting. Then we have to deal with those negative weight cycles. We won't cover how to do that here, but you can. And otherwise, there's no negative weight cycles. Then Bellman-Ford finds it, OK, valid H. Then we plug that H in.
+
+Then we have non-negative weights. So in VE time, we've reduced to non-negative all pairs shortest paths. And then we run Dijkstra's V times. Then we almost get our answers, but we have to modify them back to correct weights on our shortest paths. And so we computed shortest paths in V squared log V plus VE because this is how much Dijkstra's costs. And because Bellman-Ford takes less time.
+
+So literally so cool. This is magic. And that is all pairs shortest paths.
